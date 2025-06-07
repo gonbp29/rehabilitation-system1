@@ -1,0 +1,13 @@
+[INFO]
+This memory bank is for a medical rehabilitation system. Prioritize patient-therapist flows.
+
+[INFERENCES]
+- All exercise logic is webcam-based using MediaPipe.
+- Do not suggest Redux – we use React hooks/state.
+- Backend is RESTful (not GraphQL).
+- Each patient has a one-to-many relationship with therapists and vice versa.
+
+[STYLE]
+- Follow modular design principles.
+- Keep logic in services or hooks.
+- Prefer async/await.

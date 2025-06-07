@@ -1,0 +1,112 @@
+.container {
+  padding: 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.title {
+  font-size: 2rem;
+  margin: 0;
+}
+
+.createButton {
+  padding: 8px 16px;
+  background: #1976d2;
+  color: white;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+}
+
+.createButton:hover {
+  background: #1565c0;
+}
+
+.plansList {
+  display: grid;
+  gap: 16px;
+}
+
+.planCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: white;
+  border-radius: 8px;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.planInfo {
+  flex: 1;
+}
+
+.planTitle {
+  font-size: 1.25rem;
+  margin: 0 0 4px;
+  color: #2c3e50;
+}
+
+.planDetails {
+  color: #666;
+  margin: 0 0 8px;
+  font-size: 0.9rem;
+}
+
+.progress {
+  position: relative;
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.progressBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: #1976d2;
+  transition: width 0.3s ease;
+}
+
+.progressText {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  font-size: 1.2rem;
+  color: #666;
+}
+
+.statusactive {
+  color: #10b981;
+  background: #d1fae5;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.statuscompleted {
+  color: #6366f1;
+  background: #e0e7ff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+} 

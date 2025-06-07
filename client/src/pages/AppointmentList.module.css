@@ -1,0 +1,159 @@
+.pageBg {
+  background: #f8fafc;
+  min-height: 100vh;
+  padding: 2rem 0;
+}
+
+.container {
+  padding: 0;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 3rem;
+}
+
+.title {
+  font-size: 2rem;
+  color: var(--primary-blue);
+  margin: 0 0 1.5rem 0;
+  text-align: center;
+}
+
+.actionsRow {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.appointmentsList {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.appointmentCard {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  padding: 1.5rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.appointmentInfo {
+  flex: 1;
+  text-decoration: none;
+  text-align: right;
+}
+
+.appointmentTitle {
+  font-weight: bold;
+  color: #222;
+  margin-bottom: 0.25rem;
+  font-size: 1.15rem;
+}
+
+.appointmentDetails {
+  color: #6b7280;
+  font-size: 1rem;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  font-size: 1.2rem;
+  color: #666;
+}
+
+.statuspending {
+  color: #fb923c;
+  background: #fff7ed;
+  padding: 0.25rem 1.25rem;
+  border-radius: 16px;
+  font-size: 1rem;
+  font-weight: 500;
+  margin-left: 0.5rem;
+}
+
+.statuscompleted {
+  color: #10b981;
+  background: #ecfdf5;
+  padding: 0.25rem 1.25rem;
+  border-radius: 16px;
+  font-size: 1rem;
+  font-weight: 500;
+  margin-left: 0.5rem;
+}
+
+.statuscancelled {
+  color: #ef4444;
+  background: #fee2e2;
+  padding: 0.25rem 1.25rem;
+  border-radius: 16px;
+  font-size: 1rem;
+  font-weight: 500;
+  margin-left: 0.5rem;
+}
+
+.cardActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.editButton, .cancelButton {
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.editButton {
+  background: #1976d2;
+  color: #fff;
+}
+
+.editButton:hover {
+  background: #1565c0;
+}
+
+.cancelButton {
+  background: #f3f4f6;
+  color: #1976d2;
+}
+
+.cancelButton:hover {
+  background: #e0e7ef;
+}
+
+@media (max-width: 700px) {
+  .container {
+    max-width: 98vw;
+    padding: 0 0.5rem;
+  }
+  .appointmentCard {
+    flex-direction: column;
+    align-items: flex-end;
+    padding: 1rem;
+    gap: 1rem;
+  }
+  .actionsRow {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+}
