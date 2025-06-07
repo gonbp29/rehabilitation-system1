@@ -1,88 +1,66 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import styles from './PatientDashboard.module.css';
-import { ClockIcon, ChartBarIcon, ChatBubbleLeftIcon } from '@heroicons/react/24/outline';
-import { getExercises, getAppointments, getPatient, getTherapist } from '../services/api';
-import { Exercise, Appointment, Patient, Therapist } from '../types';
+import { ClockIcon, ChartBarIcon } from '@heroicons/react/24/outline';
+import { getPatientDashboard } from '../services/api';
+import { PatientExercise, Appointment } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 
 const PatientDashboard: React.FC = () => {
   const { user } = useAuth();
-  const patientId = user?.id;
+  const patientId = user?.role_id;
 
-  const [exercises, setExercises] = useState<Exercise[]>([]);
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [patient, setPatient] = useState<Patient | null>(null);
-  const [therapist, setTherapist] = useState<Therapist | null>(null);
+  const [dashboardData, setDashboardData] = useState<{ todaysExercises: PatientExercise[], nextAppointment: Appointment | null }>({ todaysExercises: [], nextAppointment: null });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!patientId) return;
-    // Fetch patient info
-    getPatient(patientId)
-      .then((data) => {
-        setPatient(data);
-        // Fetch therapist info if patient has a therapist
-        if (data.therapistId) {
-          getTherapist(data.therapistId)
-            .then((therapistData) => setTherapist(therapistData))
-            .catch((err) => console.error('Error fetching therapist:', err));
+
+    const fetchData = async () => {
+        try {
+            const response = await getPatientDashboard(patientId);
+            setDashboardData(response);
+        } catch (err) {
+            console.error('Error fetching patient dashboard:', err);
+            setError('שגיאה בטעינת הנתונים');
+        } finally {
+            setLoading(false);
         }
-      })
-      .catch((err) => console.error('Error fetching patient:', err));
+    };
 
-    // Fetch exercises
-    getExercises()
-      .then((data) => setExercises(data))
-      .catch((err) => console.error('Error fetching exercises:', err));
-
-    // Fetch appointments
-    getAppointments(patientId, 'patient')
-      .then((data) => setAppointments(data))
-      .catch((err) => console.error('Error fetching appointments:', err));
+    fetchData();
   }, [patientId]);
 
-  // Calculate stats
-  const completedExercises = exercises.filter(e => e.isCompleted).length;
-  const totalExercises = exercises.length;
-  const completionPercent = totalExercises > 0 ? Math.round((completedExercises / totalExercises) * 100) : 0;
-  const completedAppointments = appointments.filter(a => a.status === 'completed').length;
+  if (loading) return <div className={styles.loading}>טוען...</div>;
+  if (error) return <div className={styles.error}>{error}</div>;
+  
+  const { todaysExercises, nextAppointment } = dashboardData;
 
-  // Get current rehab plan
-  const currentPlan = patient?.rehabPlans?.find(plan => plan.status === 'active');
+  const completionPercent = todaysExercises.length > 0
+    ? Math.round((todaysExercises.filter(e => e.status === 'completed').length / todaysExercises.length) * 100)
+    : 0;
 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h1>שלום, {user?.firstName || '...'}</h1>
+        <h1>שלום, {user?.first_name || '...'}</h1>
         <p>ברוך הבא למערכת המעקב האישית שלך</p>
       </div>
 
       <div className={styles.statsContainer}>
         <div className={styles.statCard}>
-          <div className={styles.statIcon}>
-            <ChartBarIcon />
-          </div>
+          <div className={styles.statIcon}><ChartBarIcon /></div>
           <div className={styles.statContent}>
             <h3>{completionPercent}%</h3>
-            <p>השלמת תרגילים</p>
+            <p>השלמת תרגילים להיום</p>
           </div>
         </div>
         <div className={styles.statCard}>
-          <div className={styles.statIcon}>
-            <ClockIcon />
-          </div>
+          <div className={styles.statIcon}><ClockIcon /></div>
           <div className={styles.statContent}>
-            <h3>{completedExercises}</h3>
-            <p>תרגילים הושלמו</p>
-          </div>
-        </div>
-        <div className={styles.statCard}>
-          <div className={styles.statIcon}>
-            <ChatBubbleLeftIcon />
-          </div>
-          <div className={styles.statContent}>
-            <h3>{completedAppointments}</h3>
-            <p>פגישות בוצעו</p>
+            <h3>{todaysExercises.filter(e => e.status !== 'completed').length}</h3>
+            <p>תרגילים נותרו להיום</p>
           </div>
         </div>
       </div>
@@ -91,77 +69,44 @@ const PatientDashboard: React.FC = () => {
         <div className={styles.section}>
           <div className={styles.sectionHeader}>
             <h2>התרגילים שלי להיום</h2>
-            <Link to="/my-exercises" className={styles.link}>
-              צפה בכל התרגילים
-            </Link>
+            <Link to="/my-exercises" className={styles.link}>צפה בכל התרגילים</Link>
           </div>
           <div className={styles.exercisesList}>
-            {exercises.map(exercise => (
-              <div key={exercise.id} className={styles.exerciseCard}>
+            {todaysExercises.slice(0, 3).map(pe => (
+              <div key={pe.id} className={styles.exerciseCard}>
                 <div className={styles.exerciseInfo}>
-                  <h3>{exercise.name}</h3>
-                  <p>{exercise.description}</p>
-                  <span className={styles.duration}>{exercise.duration} דקות</span>
+                  <h3>{pe.exercise?.name}</h3>
+                  <p>{pe.exercise?.description}</p>
                 </div>
-                <Link
-                  to={`/exercise-session/${exercise.id}`}
-                  className={styles.startButton}
-                >
-                  התחל תרגיל
-                </Link>
+                <button className={styles.startButton}>התחל תרגיל</button>
               </div>
             ))}
+             {todaysExercises.length === 0 && <p>אין תרגילים להיום. כל הכבוד!</p>}
           </div>
         </div>
 
         <div className={styles.section}>
           <div className={styles.sectionHeader}>
-            <h2>פגישות קרובות</h2>
-            <Link to="/my-appointments" className={styles.link}>
-              צפה בכל הפגישות
-            </Link>
+            <h2>פגישה קרובה</h2>
+            <Link to="/my-appointments" className={styles.link}>צפה בכל הפגישות</Link>
           </div>
           <div className={styles.appointmentsList}>
-            {appointments.map(appointment => (
-              <div key={appointment.id} className={styles.appointmentCard}>
+            {nextAppointment ? (
+              <div className={styles.appointmentCard}>
                 <div className={styles.appointmentInfo}>
                   <div className={styles.appointmentDate}>
-                    <strong>{new Date(appointment.date).toLocaleDateString('he-IL')}</strong>
-                    <span>{appointment.time}</span>
+                    <strong>{new Date(nextAppointment.scheduled_date).toLocaleDateString('he-IL')}</strong>
+                    <span>{nextAppointment.scheduled_time}</span>
                   </div>
                   <div className={styles.appointmentDetails}>
-                    <h3>
-                      {appointment.type === 'initial'
-                        ? 'פגישת הערכה'
-                        : appointment.type === 'follow-up'
-                        ? 'פגישת מעקב'
-                        : 'תרגול'}
-                    </h3>
-                    <p>עם {therapist ? `${therapist.firstName} ${therapist.lastName}` : 'מטפל'}</p>
-                    <p>{appointment.location}</p>
+                    <h3>{nextAppointment.type}</h3>
+                    <p>עם {nextAppointment.therapist?.user?.first_name} {nextAppointment.therapist?.user?.last_name}</p>
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-
-        <div className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <h2>ההתקדמות שלי</h2>
-            <Link to="/my-progress" className={styles.link}>
-              צפה בדוח מלא
-            </Link>
-          </div>
-          <div className={styles.progressCard}>
-            <div className={styles.progressHeader}>
-              <h3>תוכנית שיקום נוכחית</h3>
-              <p>{currentPlan?.title || patient?.condition || '---'}</p>
-            </div>
-            <div className={styles.progressBar}>
-              <div className={styles.progressFill} style={{ width: `${completionPercent}%` }} />
-            </div>
-            <p className={styles.progressText}>{completionPercent}% להשלמת היעד</p>
+            ) : (
+                <p>אין פגישות קרובות.</p>
+            )}
           </div>
         </div>
       </div>

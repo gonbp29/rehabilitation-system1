@@ -14,19 +14,19 @@ import { useAuth } from '../contexts/AuthContext';
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const { login } = useAuth();
+  const { login, user, error, loading } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      await login(email, password);
-      navigate('/patient/dashboard');
-    } catch (err) {
-      setError('שם משתמש או סיסמה שגויים');
-    }
+    await login({ email, password });
   };
+
+  React.useEffect(() => {
+    if (user) {
+      navigate('/dashboard');
+    }
+  }, [user, navigate]);
 
   return (
     <Container component="main" maxWidth="xs">
@@ -88,8 +88,9 @@ const Login: React.FC = () => {
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
+              disabled={loading}
             >
-              התחבר
+              {loading ? 'מתחבר...' : 'התחבר'}
             </Button>
             <Box sx={{ textAlign: 'center' }}>
               <Link to="/register" style={{ textDecoration: 'none' }}>

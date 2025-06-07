@@ -1,66 +1,63 @@
 import { Model, DataTypes } from 'sequelize';
 import sequelize from '../config/database';
-import bcrypt from 'bcryptjs';
+import bcrypt from 'bcrypt';
 
 class User extends Model {
   public id!: string;
-  public username!: string;
   public email!: string;
-  public password!: string;
-  public role!: 'admin' | 'therapist' | 'patient';
-  public firstName?: string;
-  public lastName?: string;
+  public password_hash!: string;
+  public first_name!: string;
+  public last_name!: string;
   public phone?: string;
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  public role!: 'therapist' | 'patient';
+  public readonly created_at!: Date;
+  public readonly updated_at!: Date;
 
   public async validatePassword(password: string): Promise<boolean> {
-    return bcrypt.compare(password, this.password);
+    return bcrypt.compare(password, this.password_hash);
   }
 }
 
 User.init(
   {
     id: {
-      type: DataTypes.STRING(36),
+      type: DataTypes.UUID,
       primaryKey: true,
       defaultValue: DataTypes.UUIDV4,
     },
-    username: {
-      type: DataTypes.STRING(50),
-      allowNull: false,
-      unique: true,
-    },
     email: {
-      type: DataTypes.STRING(100),
+      type: DataTypes.STRING(255),
       allowNull: false,
       unique: true,
     },
-    password: {
+    password_hash: {
       type: DataTypes.STRING(255),
       allowNull: false,
     },
-    role: {
-      type: DataTypes.ENUM('admin', 'therapist', 'patient'),
+    first_name: {
+      type: DataTypes.STRING(100),
       allowNull: false,
     },
-    firstName: {
-      type: DataTypes.STRING(50),
-      allowNull: true,
-    },
-    lastName: {
-      type: DataTypes.STRING(50),
-      allowNull: true,
+    last_name: {
+      type: DataTypes.STRING(100),
+      allowNull: false,
     },
     phone: {
       type: DataTypes.STRING(20),
       allowNull: true,
     },
+    role: {
+      type: DataTypes.ENUM('therapist', 'patient'),
+      allowNull: false,
+    },
   },
   {
     sequelize,
     modelName: 'User',
+    tableName: 'Users',
+    timestamps: true,
+    underscored: true,
   }
 );
 
-export default User; 
+export default User;

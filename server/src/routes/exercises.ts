@@ -5,7 +5,7 @@ import { authenticateToken } from '../middleware/auth';
 const router = express.Router();
 
 // Get all exercises
-router.get('/', authenticateToken, async (req, res) => {
+router.get('/library', authenticateToken, async (req, res) => {
   try {
     const exercises = await Exercise.findAll();
     res.json(exercises);
@@ -35,27 +35,23 @@ router.post('/', authenticateToken, async (req, res) => {
     const {
       name,
       description,
-      videoUrl,
       instructions,
-      duration,
-      repetitions,
-      sets,
-      difficulty,
-      type,
-      category
+      category,
+      difficulty_level,
+      default_sets,
+      default_repetitions,
+      default_duration_seconds
     } = req.body;
 
     const exercise = await Exercise.create({
       name,
       description,
-      videoUrl,
       instructions,
-      duration,
-      repetitions,
-      sets,
-      difficulty,
-      type,
-      category
+      category,
+      difficulty_level,
+      default_sets,
+      default_repetitions,
+      default_duration_seconds
     });
 
     res.status(201).json(exercise);
@@ -76,27 +72,23 @@ router.put('/:id', authenticateToken, async (req, res) => {
     const {
       name,
       description,
-      videoUrl,
       instructions,
-      duration,
-      repetitions,
-      sets,
-      difficulty,
-      type,
-      category
+      category,
+      difficulty_level,
+      default_sets,
+      default_repetitions,
+      default_duration_seconds
     } = req.body;
 
     await exercise.update({
       name,
       description,
-      videoUrl,
       instructions,
-      duration,
-      repetitions,
-      sets,
-      difficulty,
-      type,
-      category
+      category,
+      difficulty_level,
+      default_sets,
+      default_repetitions,
+      default_duration_seconds
     });
 
     res.json(exercise);

@@ -8,7 +8,7 @@ const router = express.Router();
 // Register route
 router.post('/register', async (req, res) => {
   try {
-    const { email, password, firstName, lastName, phoneNumber, dateOfBirth, role, therapistId } = req.body;
+    const { email, password, first_name, last_name, phone, role, specialization, therapist_id, date_of_birth, condition } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ where: { email } });
@@ -17,29 +17,38 @@ router.post('/register', async (req, res) => {
     }
 
     // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const password_hash = await bcrypt.hash(password, 10);
 
     // Create user
     const user = await User.create({
       email,
-      password: hashedPassword,
-      firstName,
-      lastName,
-      phoneNumber,
-      dateOfBirth,
+      password_hash,
+      first_name,
+      last_name,
+      phone,
       role,
     });
 
+    let roleData;
     // Create role-specific record
     if (role === 'patient') {
-      await Patient.create({
-        userId: user.id,
-        therapistId: therapistId || null,
+        if (!therapist_id || !date_of_birth || !condition) {
+            return res.status(400).json({ error: 'Missing required fields for patient registration.' });
+        }
+      roleData = await Patient.create({
+        user_id: user.id,
+        therapist_id,
+        date_of_birth,
+        condition,
         status: 'active',
       });
     } else if (role === 'therapist') {
-      await Therapist.create({
-        userId: user.id,
+        if (!specialization) {
+            return res.status(400).json({ error: 'Missing specialization for therapist registration.' });
+        }
+      roleData = await Therapist.create({
+        user_id: user.id,
+        specialization,
       });
     }
 
@@ -55,10 +64,11 @@ router.post('/register', async (req, res) => {
       user: {
         id: user.id,
         email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
+        first_name: user.first_name,
+        last_name: user.last_name,
         role: user.role,
-      }
+      },
+      role_data: roleData,
     });
   } catch (error) {
     console.error('Registration error:', error);
@@ -78,7 +88,7 @@ router.post('/login', async (req, res) => {
     }
 
     // Verify password
-    const validPassword = await bcrypt.compare(password, user.password);
+    const validPassword = await user.validatePassword(password);
     if (!validPassword) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
@@ -86,16 +96,16 @@ router.post('/login', async (req, res) => {
     // Get role-specific ID
     let roleId;
     if (user.role === 'patient') {
-      const patient = await Patient.findOne({ where: { userId: user.id } });
+      const patient = await Patient.findOne({ where: { user_id: user.id } });
       roleId = patient?.id;
     } else if (user.role === 'therapist') {
-      const therapist = await Therapist.findOne({ where: { userId: user.id } });
+      const therapist = await Therapist.findOne({ where: { user_id: user.id } });
       roleId = therapist?.id;
     }
 
     // Generate JWT token
     const token = jwt.sign(
-      { id: user.id, role: user.role },
+      { user_id: user.id, role: user.role, role_id: roleId },
       process.env.JWT_SECRET || 'supersecretkey123',
       { expiresIn: '7d' }
     );
@@ -105,10 +115,10 @@ router.post('/login', async (req, res) => {
       user: {
         id: user.id,
         email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
+        first_name: user.first_name,
+        last_name: user.last_name,
         role: user.role,
-        roleId,
+        role_id: roleId,
       }
     });
   } catch (error) {

@@ -1,26 +1,26 @@
 import { Model, DataTypes } from 'sequelize';
-import { sequelize } from '../config/database';
+import sequelize from '../config/database';
 import User from './User';
-import { TherapistType } from '../types';
 
-class Therapist extends Model implements TherapistType {
+class Therapist extends Model {
   public id!: string;
-  public userId!: string;
-  public specialization?: string;
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  public user_id!: string;
+  public specialization!: string;
+  public readonly created_at!: Date;
+  public readonly updated_at!: Date;
 }
 
 Therapist.init(
   {
     id: {
-      type: DataTypes.STRING(36),
+      type: DataTypes.UUID,
       primaryKey: true,
       defaultValue: DataTypes.UUIDV4,
     },
-    userId: {
-      type: DataTypes.STRING(36),
+    user_id: {
+      type: DataTypes.UUID,
       allowNull: false,
+      unique: true,
       references: {
         model: User,
         key: 'id',
@@ -28,17 +28,19 @@ Therapist.init(
     },
     specialization: {
       type: DataTypes.STRING(100),
-      allowNull: true,
+      allowNull: false,
     },
   },
   {
     sequelize,
     modelName: 'Therapist',
+    tableName: 'Therapists',
+    timestamps: true,
+    underscored: true,
   }
 );
 
-// Define associations
-Therapist.belongsTo(User, { foreignKey: 'userId' });
-User.hasOne(Therapist, { foreignKey: 'userId' });
+Therapist.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
+User.hasOne(Therapist, { foreignKey: 'user_id', as: 'therapist' });
 
 export default Therapist; 

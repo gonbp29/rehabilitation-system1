@@ -1,5 +1,5 @@
 import express from 'express';
-import { Appointment, Patient, Therapist, RehabPlan } from '../models';
+import { Appointment, Patient, Therapist, User } from '../models';
 import { authenticateToken } from '../middleware/auth';
 
 const router = express.Router();
@@ -9,9 +9,8 @@ router.get('/', authenticateToken, async (req, res) => {
   try {
     const appointments = await Appointment.findAll({
       include: [
-        { model: Patient, attributes: ['id', 'status'] },
-        { model: Therapist, attributes: ['id'] },
-        { model: RehabPlan, attributes: ['id', 'title'] }
+          { model: Patient, as: 'patient', include: [{ model: User, as: 'user', attributes: ['first_name', 'last_name']}] },
+          { model: Therapist, as: 'therapist', include: [{ model: User, as: 'user', attributes: ['first_name', 'last_name']}] },
       ]
     });
     res.json(appointments);
@@ -25,11 +24,10 @@ router.get('/', authenticateToken, async (req, res) => {
 router.get('/:id', authenticateToken, async (req, res) => {
   try {
     const appointment = await Appointment.findByPk(req.params.id, {
-      include: [
-        { model: Patient, attributes: ['id', 'status'] },
-        { model: Therapist, attributes: ['id'] },
-        { model: RehabPlan, attributes: ['id', 'title'] }
-      ]
+        include: [
+            { model: Patient, as: 'patient', include: [{ model: User, as: 'user', attributes: ['first_name', 'last_name']}] },
+            { model: Therapist, as: 'therapist', include: [{ model: User, as: 'user', attributes: ['first_name', 'last_name']}] },
+        ]
     });
     if (!appointment) {
       return res.status(404).json({ error: 'Appointment not found' });
@@ -45,41 +43,28 @@ router.get('/:id', authenticateToken, async (req, res) => {
 router.post('/', authenticateToken, async (req, res) => {
   try {
     const {
-      patientId,
-      therapistId,
-      planId,
-      date,
-      time,
+      patient_id,
+      therapist_id,
+      scheduled_date,
+      scheduled_time,
+      duration_minutes,
       type,
       status,
-      notes,
-      location,
-      reminderTime
+      session_notes,
     } = req.body;
 
     const appointment = await Appointment.create({
-      patientId,
-      therapistId,
-      planId,
-      date,
-      time,
-      type,
-      status: status || 'scheduled',
-      notes,
-      location,
-      reminderTime
+        patient_id,
+        therapist_id,
+        scheduled_date,
+        scheduled_time,
+        duration_minutes,
+        type,
+        status: status || 'scheduled',
+        session_notes,
     });
-
-    // Fetch the created appointment with its relations
-    const createdAppointment = await Appointment.findByPk(appointment.id, {
-      include: [
-        { model: Patient, attributes: ['id', 'status'] },
-        { model: Therapist, attributes: ['id'] },
-        { model: RehabPlan, attributes: ['id', 'title'] }
-      ]
-    });
-
-    res.status(201).json(createdAppointment);
+    
+    res.status(201).json(appointment);
   } catch (error) {
     console.error('Error creating appointment:', error);
     res.status(500).json({ error: 'Failed to create appointment' });
@@ -95,39 +80,46 @@ router.put('/:id', authenticateToken, async (req, res) => {
     }
 
     const {
-      date,
-      time,
-      type,
-      status,
-      notes,
-      location,
-      reminderTime
+        scheduled_date,
+        scheduled_time,
+        duration_minutes,
+        type,
+        status,
+        session_notes,
     } = req.body;
 
     await appointment.update({
-      date,
-      time,
-      type,
-      status,
-      notes,
-      location,
-      reminderTime
+        scheduled_date,
+        scheduled_time,
+        duration_minutes,
+        type,
+        status,
+        session_notes,
     });
 
-    // Fetch the updated appointment with its relations
-    const updatedAppointment = await Appointment.findByPk(appointment.id, {
-      include: [
-        { model: Patient, attributes: ['id', 'status'] },
-        { model: Therapist, attributes: ['id'] },
-        { model: RehabPlan, attributes: ['id', 'title'] }
-      ]
-    });
-
-    res.json(updatedAppointment);
+    res.json(appointment);
   } catch (error) {
     console.error('Error updating appointment:', error);
     res.status(500).json({ error: 'Failed to update appointment' });
   }
+});
+
+// Update appointment notes
+router.put('/:id/notes', authenticateToken, async (req, res) => {
+    try {
+        const appointment = await Appointment.findByPk(req.params.id);
+        if (!appointment) {
+            return res.status(404).json({ error: 'Appointment not found' });
+        }
+        
+        const { session_notes } = req.body;
+        await appointment.update({ session_notes });
+        
+        res.json(appointment);
+    } catch (error) {
+        console.error('Error updating appointment notes:', error);
+        res.status(500).json({ error: 'Failed to update appointment notes' });
+    }
 });
 
 // Delete appointment
@@ -143,42 +135,6 @@ router.delete('/:id', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Error deleting appointment:', error);
     res.status(500).json({ error: 'Failed to delete appointment' });
-  }
-});
-
-// Get appointments for a specific patient
-router.get('/patient/:patientId', authenticateToken, async (req, res) => {
-  try {
-    const appointments = await Appointment.findAll({
-      where: { patientId: req.params.patientId },
-      include: [
-        { model: Patient, attributes: ['id', 'status'] },
-        { model: Therapist, attributes: ['id'] },
-        { model: RehabPlan, attributes: ['id', 'title'] }
-      ]
-    });
-    res.json(appointments);
-  } catch (error) {
-    console.error('Error fetching patient appointments:', error);
-    res.status(500).json({ error: 'Failed to fetch patient appointments' });
-  }
-});
-
-// Get appointments for a specific therapist
-router.get('/therapist/:therapistId', authenticateToken, async (req, res) => {
-  try {
-    const appointments = await Appointment.findAll({
-      where: { therapistId: req.params.therapistId },
-      include: [
-        { model: Patient, attributes: ['id', 'status'] },
-        { model: Therapist, attributes: ['id'] },
-        { model: RehabPlan, attributes: ['id', 'title'] }
-      ]
-    });
-    res.json(appointments);
-  } catch (error) {
-    console.error('Error fetching therapist appointments:', error);
-    res.status(500).json({ error: 'Failed to fetch therapist appointments' });
   }
 });
 

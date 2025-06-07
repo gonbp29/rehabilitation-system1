@@ -1,74 +1,66 @@
 import { Model, DataTypes } from 'sequelize';
-import { sequelize } from '../config/database';
-import { ExerciseType } from '../types';
+import sequelize from '../config/database';
 
-class Exercise extends Model implements ExerciseType {
+class Exercise extends Model {
   public id!: string;
   public name!: string;
-  public description?: string;
-  public videoUrl?: string;
-  public instructions?: string;
-  public duration?: number;
-  public repetitions?: number;
-  public sets?: number;
-  public difficulty?: 'beginner' | 'intermediate' | 'advanced';
-  public type?: 'squat' | 'plank' | 'pushup' | 'other';
-  public category?: 'core' | 'upper' | 'lower' | 'full';
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  public description!: string;
+  public instructions!: string;
+  public category!: string;
+  public difficulty_level!: 'beginner' | 'intermediate' | 'advanced';
+  public default_sets!: number;
+  public default_repetitions!: number;
+  public default_duration_seconds!: number;
+  public readonly created_at!: Date;
+  public readonly updated_at!: Date;
 }
 
 Exercise.init(
   {
     id: {
-      type: DataTypes.STRING(36),
+      type: DataTypes.UUID,
       primaryKey: true,
       defaultValue: DataTypes.UUIDV4,
     },
     name: {
-      type: DataTypes.STRING(100),
+      type: DataTypes.STRING(200),
       allowNull: false,
     },
     description: {
       type: DataTypes.TEXT,
-      allowNull: true,
-    },
-    videoUrl: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
+      allowNull: false,
     },
     instructions: {
       type: DataTypes.TEXT,
-      allowNull: true,
-    },
-    duration: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-    },
-    repetitions: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-    },
-    sets: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-    },
-    difficulty: {
-      type: DataTypes.ENUM('beginner', 'intermediate', 'advanced'),
-      allowNull: true,
-    },
-    type: {
-      type: DataTypes.ENUM('squat', 'plank', 'pushup', 'other'),
-      allowNull: true,
+      allowNull: false,
     },
     category: {
-      type: DataTypes.ENUM('core', 'upper', 'lower', 'full'),
-      allowNull: true,
+      type: DataTypes.STRING(100),
+      allowNull: false,
+    },
+    difficulty_level: {
+      type: DataTypes.ENUM('beginner', 'intermediate', 'advanced'),
+      allowNull: false,
+    },
+    default_sets: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    default_repetitions: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    default_duration_seconds: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
     },
   },
   {
     sequelize,
     modelName: 'Exercise',
+    tableName: 'Exercises',
+    timestamps: true,
+    underscored: true,
   }
 );
 

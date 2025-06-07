@@ -1,182 +1,125 @@
 import sequelize from './database';
-import { User, Patient, Therapist, Appointment, Exercise, RehabPlan, RehabGoal } from '../models';
-import bcrypt from 'bcryptjs';
-import { v4 as uuidv4 } from 'uuid';
+import { User, Patient, Therapist, Appointment, Exercise, PatientExercise, ExerciseCompletion } from '../models';
+import bcrypt from 'bcrypt';
 
 const initDatabase = async () => {
   try {
-    // Sync all models with database
     await sequelize.sync({ alter: true });
     console.log('Database synchronized successfully');
 
-    // DEMO DATA: Add a few entities of each kind if not present
-    // Therapist User
-    let therapistUser = await User.findOne({ where: { email: 'therapist1@example.com' } });
-    if (!therapistUser) {
-      const hashedPassword = await bcrypt.hash('therapist123', 10);
-      therapistUser = await User.create({
-        id: uuidv4(),
-        email: 'therapist1@example.com',
-        password: hashedPassword,
-        firstName: 'דנה',
-        lastName: 'כהן',
-        role: 'therapist',
-        phoneNumber: '050-1111111',
-        dateOfBirth: '1985-01-01',
-      });
+    // Create main therapist for the demo
+    let mainTherapistUser = await User.findOne({ where: { email: 'gonbp9@gmail.com' } });
+    if (!mainTherapistUser) {
+        const password_hash = await bcrypt.hash('123456', 10);
+        mainTherapistUser = await User.create({
+            email: 'gonbp9@gmail.com',
+            password_hash,
+            first_name: 'Gon',
+            last_name: 'BP',
+            role: 'therapist',
+        });
+    }
+    
+    let mainTherapist = await Therapist.findOne({ where: { user_id: mainTherapistUser.id } });
+    if (!mainTherapist) {
+        mainTherapist = await Therapist.create({
+            user_id: mainTherapistUser.id,
+            specialization: 'General',
+        });
     }
 
-    // Therapist
-    let therapist = await Therapist.findOne({ where: { userId: therapistUser.id } });
-    if (!therapist) {
-      therapist = await Therapist.create({
-        id: uuidv4(),
-        userId: therapistUser.id,
-        specialization: 'פיזיותרפיה',
-      });
-      console.log('Demo therapist created');
+    // Check if the main therapist has enough patients, if not, create them.
+    const patientCount = await Patient.count({ where: { therapist_id: mainTherapist.id } });
+    if (patientCount < 20) {
+        const patientsToCreate = 20 - patientCount;
+        const patientNames = ['John', 'Abigail', 'Peter', 'Jessica', 'Michael', 'Emily', 'David', 'Sarah', 'Chris', 'Laura', 'James', 'Linda', 'Robert', 'Patricia', 'William', 'Jennifer', 'Richard', 'Mary', 'Joseph', 'Susan'];
+        const password_hash = await bcrypt.hash('123456', 10);
+
+        for (let i = 0; i < patientsToCreate; i++) {
+            const email = `${String.fromCharCode(97 + patientCount + i)}@gmail.com`;
+            const user = await User.create({
+                email,
+                password_hash,
+                first_name: patientNames[i % patientNames.length],
+                last_name: `Doe${i}`,
+                role: 'patient',
+            });
+
+            await Patient.create({
+                user_id: user.id,
+                therapist_id: mainTherapist.id,
+                date_of_birth: '1990-01-01',
+                condition: 'General Pain',
+                status: 'active',
+            });
+        }
+        console.log(`Created ${patientsToCreate} mock patients.`);
     }
 
-    // Patient User
-    let patientUser = await User.findOne({ where: { email: 'patient1@example.com' } });
-    if (!patientUser) {
-      const hashedPassword = await bcrypt.hash('patient123', 10);
-      patientUser = await User.create({
-        id: uuidv4(),
-        email: 'patient1@example.com',
-        password: hashedPassword,
-        firstName: 'יוסי',
-        lastName: 'לוי',
-        role: 'patient',
-        phoneNumber: '050-2222222',
-        dateOfBirth: '1990-01-01',
-      });
-    }
-
-    // Patient
-    let patient = await Patient.findOne({ where: { userId: patientUser.id } });
-    if (!patient) {
-      patient = await Patient.create({
-        id: uuidv4(),
-        userId: patientUser.id,
-        therapistId: therapist.id,
-        condition: 'כאבי גב תחתון',
-        status: 'active',
-      });
-      console.log('Demo patient created');
-    }
-
-    // Rehab Plan
-    let rehabPlan = await RehabPlan.findOne({ where: { patientId: patient.id } });
-    if (!rehabPlan) {
-      const patientId = patient.id.toString();
-      const therapistId = therapist.id.toString();
-      
-      rehabPlan = await RehabPlan.create({
-        id: uuidv4(),
-        patientId,
-        therapistId,
-        title: 'תוכנית שיקום לגב תחתון',
-        description: 'תוכנית שיקום מקיפה לטיפול בכאבי גב תחתון',
-        startDate: new Date(),
-        endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
-        status: 'active',
-        progress: 0,
-      });
-      console.log('Demo rehab plan created');
-
-      // Add goals to the plan
-      await RehabGoal.bulkCreate([
-        {
-          id: uuidv4(),
-          planId: rehabPlan.id,
-          title: 'שיפור טווח התנועה',
-          description: 'הגדלת טווח התנועה של הגב התחתון',
-          targetDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // 14 days from now
-          status: 'pending',
-          measurementCriteria: 'מדידת טווח התנועה',
-          progress: 0,
-        },
-        {
-          id: uuidv4(),
-          planId: rehabPlan.id,
-          title: 'חיזוק שרירי הליבה',
-          description: 'חיזוק שרירי הבטן והגב',
-          targetDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
-          status: 'pending',
-          measurementCriteria: 'מדידת כוח שרירים',
-          progress: 0,
-        },
-      ]);
-      console.log('Demo rehab goals created');
-    }
-
-    // Exercises
+    // Create some exercises if they don't exist
     const exerciseCount = await Exercise.count();
     if (exerciseCount === 0) {
       await Exercise.bulkCreate([
         {
-          id: uuidv4(),
-          name: 'כפיפת ברך',
-          description: 'כפיפת ברך בשכיבה על הבטן',
-          videoUrl: 'https://example.com/video1',
-          instructions: 'בצע 3 סטים של 12 חזרות',
-          duration: 10,
-          repetitions: 12,
-          sets: 3,
-          difficulty: 'beginner',
-          type: 'squat',
-          category: 'lower',
+          name: 'Knee Bending',
+          description: 'Bend the knee while lying on your stomach.',
+          instructions: 'Perform 3 sets of 12 repetitions.',
+          category: 'lower-body',
+          difficulty_level: 'beginner',
+          default_sets: 3,
+          default_repetitions: 12,
+          default_duration_seconds: 60,
         },
         {
-          id: uuidv4(),
-          name: 'הרמת רגל ישרה',
-          description: 'הרמת רגל ישרה בשכיבה על הגב',
-          videoUrl: 'https://example.com/video2',
-          instructions: 'בצע 3 סטים של 15 חזרות',
-          duration: 12,
-          repetitions: 15,
-          sets: 3,
-          difficulty: 'intermediate',
-          type: 'other',
-          category: 'lower',
+          name: 'Straight Leg Raise',
+          description: 'Raise the leg straight while lying on your back.',
+          instructions: 'Perform 3 sets of 15 repetitions.',
+          category: 'lower-body',
+          difficulty_level: 'intermediate',
+          default_sets: 3,
+          default_repetitions: 15,
+          default_duration_seconds: 75,
         },
       ]);
       console.log('Demo exercises created');
     }
+    
+    // Assign exercises and appointments to all patients who don't have them
+    const allPatients = await Patient.findAll();
+    const allExercises = await Exercise.findAll();
 
-    // Appointments
-    const appointmentCount = await Appointment.count({ where: { patientId: patient.id } });
-    if (appointmentCount === 0) {
-      await Appointment.bulkCreate([
-        {
-          id: uuidv4(),
-          patientId: patient.id,
-          therapistId: therapist.id,
-          planId: rehabPlan.id,
-          date: new Date(Date.now() + 86400000), // tomorrow
-          time: '10:00:00',
-          type: 'follow-up',
-          status: 'scheduled',
-          notes: 'פגישת מעקב',
-          location: 'מרפאה א',
-          reminderTime: '1hour',
-        },
-        {
-          id: uuidv4(),
-          patientId: patient.id,
-          therapistId: therapist.id,
-          planId: rehabPlan.id,
-          date: new Date(Date.now() + 2 * 86400000), // in 2 days
-          time: '14:00:00',
-          type: 'exercise',
-          status: 'scheduled',
-          notes: 'טיפול פיזיותרפיה',
-          location: 'מרפאה ב',
-          reminderTime: '30min',
-        },
-      ]);
-      console.log('Demo appointments created');
+    if (allPatients.length > 0 && allExercises.length > 0) {
+        for (const patient of allPatients) {
+            const assignedExerciseCount = await PatientExercise.count({ where: { patient_id: patient.id } });
+            if (assignedExerciseCount === 0) {
+                const randomExercise = allExercises[Math.floor(Math.random() * allExercises.length)];
+                await PatientExercise.create({
+                    patient_id: patient.id,
+                    exercise_id: randomExercise.id,
+                    assigned_by_therapist_id: patient.therapist_id, // Use patient's own therapist
+                    assigned_date: new Date(),
+                    sets: 3,
+                    repetitions: 12,
+                    duration_seconds: 60,
+                    frequency_per_week: 3,
+                    status: 'assigned',
+                });
+            }
+
+            const appointmentCount = await Appointment.count({ where: { patient_id: patient.id } });
+            if (appointmentCount === 0) {
+                await Appointment.create({
+                    patient_id: patient.id,
+                    therapist_id: patient.therapist_id, // Use patient's own therapist
+                    scheduled_date: new Date(Date.now() + (Math.floor(Math.random() * 7) + 1) * 86400000), 
+                    scheduled_time: '11:00:00',
+                    duration_minutes: 45,
+                    type: 'follow_up',
+                    status: 'scheduled',
+                });
+            }
+        }
+        console.log('Finished assigning exercises and appointments.');
     }
 
   } catch (error) {

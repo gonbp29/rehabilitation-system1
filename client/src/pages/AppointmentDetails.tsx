@@ -1,8 +1,8 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { CalendarIcon, ClockIcon, UserIcon, MapPinIcon, BellIcon } from '@heroicons/react/24/outline';
-import { getAppointment, deleteAppointment, getRehabPlan } from '../services/api';
+import { CalendarIcon, ClockIcon, UserIcon } from '@heroicons/react/24/outline';
+import { getAppointment, deleteAppointment } from '../services/api';
 import { Appointment } from '../types';
 import styles from './AppointmentDetails.module.css';
 
@@ -10,16 +10,10 @@ const AppointmentDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  const { data: appointment, isLoading } = useQuery<Appointment>({
+  const { data: appointment, isLoading, error } = useQuery<Appointment>({
     queryKey: ['appointment', id],
     queryFn: () => getAppointment(id!),
     enabled: !!id,
-  });
-
-  const { data: rehabPlan } = useQuery({
-    queryKey: ['rehabPlan', appointment?.planId],
-    queryFn: () => getRehabPlan(appointment?.planId!),
-    enabled: !!appointment?.planId,
   });
 
   const deleteMutation = useMutation({
@@ -29,46 +23,25 @@ const AppointmentDetails: React.FC = () => {
     },
   });
 
-  if (isLoading || !appointment) {
-    return <div className={styles.loading}>טוען...</div>;
-  }
+  if (isLoading) return <div className={styles.loading}>טוען...</div>;
+  if (error) return <div className={styles.error}>שגיאה בטעינת נתוני הפגישה.</div>;
+  if (!appointment) return <div className={styles.error}>הפגישה לא נמצאה.</div>;
 
   const getStatusText = (status: Appointment['status']) => {
     switch (status) {
-      case 'scheduled':
-        return 'מתוכנן';
-      case 'completed':
-        return 'הושלם';
-      case 'cancelled':
-        return 'בוטל';
-      default:
-        return status;
+      case 'scheduled': return 'מתוכנן';
+      case 'completed': return 'הושלם';
+      case 'cancelled': return 'בוטל';
+      default: return status;
     }
   };
 
   const getTypeText = (type: Appointment['type']) => {
     switch (type) {
-      case 'initial':
-        return 'פגישה ראשונה';
-      case 'follow-up':
-        return 'מעקב';
-      case 'exercise':
-        return 'תרגול מונחה';
-      default:
-        return type;
-    }
-  };
-
-  const getReminderText = (reminderTime: Appointment['reminderTime']) => {
-    switch (reminderTime) {
-      case '30min':
-        return '30 דקות לפני';
-      case '1hour':
-        return 'שעה לפני';
-      case '1day':
-        return 'יום לפני';
-      default:
-        return 'ללא תזכורת';
+      case 'consultation': return 'ייעוץ';
+      case 'follow_up': return 'מעקב';
+      case 'assessment': return 'הערכה';
+      default: return type;
     }
   };
 
@@ -80,7 +53,6 @@ const AppointmentDetails: React.FC = () => {
           {getStatusText(appointment.status)}
         </span>
         <div className={styles.actions}>
-          <button onClick={() => navigate(`/appointment/edit/${appointment.id}`)} className={styles.editButton}>ערוך</button>
           <button onClick={() => deleteMutation.mutate(appointment.id)} className={styles.deleteButton}>מחק</button>
         </div>
       </div>
@@ -92,10 +64,10 @@ const AppointmentDetails: React.FC = () => {
             <h2>מועד הפגישה</h2>
           </div>
           <div className={styles.details}>
-            <p>{new Date(appointment.date).toLocaleDateString('he-IL')}</p>
+            <p>{new Date(appointment.scheduled_date).toLocaleDateString('he-IL')}</p>
             <div className={styles.time}>
               <ClockIcon className={styles.smallIcon} />
-              <span>{appointment.time}</span>
+              <span>{appointment.scheduled_time} ({appointment.duration_minutes} דקות)</span>
             </div>
           </div>
         </div>
@@ -106,10 +78,8 @@ const AppointmentDetails: React.FC = () => {
             <h2>פרטי המשתתפים</h2>
           </div>
           <div className={styles.details}>
-            <p><strong>מטופל:</strong> {appointment.patientName}</p>
-            {rehabPlan && (
-              <p><strong>תוכנית שיקום:</strong> {rehabPlan.title}</p>
-            )}
+            <p><strong>מטפל:</strong> {appointment.therapist?.user?.first_name} {appointment.therapist?.user?.last_name}</p>
+            <p><strong>מטופל:</strong> {appointment.patient?.user?.first_name} {appointment.patient?.user?.last_name}</p>
           </div>
         </div>
 
@@ -119,22 +89,10 @@ const AppointmentDetails: React.FC = () => {
           </div>
           <div className={styles.details}>
             <p><strong>סוג פגישה:</strong> {getTypeText(appointment.type)}</p>
-            {appointment.location && (
-              <div className={styles.location}>
-                <MapPinIcon className={styles.smallIcon} />
-                <span>{appointment.location}</span>
-              </div>
-            )}
-            {appointment.reminderTime && (
-              <div className={styles.reminder}>
-                <BellIcon className={styles.smallIcon} />
-                <span>{getReminderText(appointment.reminderTime)}</span>
-              </div>
-            )}
-            {appointment.notes && (
+            {appointment.session_notes && (
               <div className={styles.notes}>
                 <p><strong>הערות:</strong></p>
-                <p>{appointment.notes}</p>
+                <p>{appointment.session_notes}</p>
               </div>
             )}
           </div>

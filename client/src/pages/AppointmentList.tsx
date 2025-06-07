@@ -1,28 +1,30 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Link, useNavigate } from 'react-router-dom';
-import { getTherapistAppointments, type Appointment } from '../services/api';
+import { Link } from 'react-router-dom';
+import { getTherapistAppointments } from '../services/api';
+import { Appointment } from '../types';
 import styles from './AppointmentList.module.css';
+import { useAuth } from '../contexts/AuthContext';
 
 const AppointmentList: React.FC = () => {
-  const therapistId = '1'; // TODO: Get from auth context
-  const navigate = useNavigate();
+  const { user } = useAuth();
+  const therapistId = user?.role_id;
+  
   const { data: appointments, isLoading } = useQuery<Appointment[]>({
     queryKey: ['therapistAppointments', therapistId],
-    queryFn: () => getTherapistAppointments(therapistId),
+    queryFn: () => getTherapistAppointments(therapistId!),
+    enabled: !!therapistId,
   });
 
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'completed' | 'cancelled'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'scheduled' | 'completed' | 'cancelled'>('all');
 
-  if (isLoading) {
-    return <div className={styles.loading}>טוען...</div>;
-  }
+  if (isLoading) return <div className={styles.loading}>טוען...</div>;
 
   let filteredAppointments = appointments || [];
   if (search) {
     filteredAppointments = filteredAppointments.filter(a =>
-      a.patientName.toLowerCase().includes(search.toLowerCase())
+      `${a.patient?.user?.first_name} ${a.patient?.user?.last_name}`.toLowerCase().includes(search.toLowerCase())
     );
   }
   if (statusFilter !== 'all') {
@@ -30,8 +32,8 @@ const AppointmentList: React.FC = () => {
   }
 
   const sortedAppointments = filteredAppointments.sort((a, b) => {
-    const dateA = new Date(a.date + 'T' + a.time);
-    const dateB = new Date(b.date + 'T' + b.time);
+    const dateA = new Date(`${a.scheduled_date}T${a.scheduled_time}`);
+    const dateB = new Date(`${b.scheduled_date}T${b.scheduled_time}`);
     return dateA.getTime() - dateB.getTime();
   });
 
@@ -54,13 +56,10 @@ const AppointmentList: React.FC = () => {
               onChange={e => setStatusFilter(e.target.value as any)}
             >
               <option value="all">הכל</option>
-              <option value="pending">ממתין</option>
+              <option value="scheduled">מתוכנן</option>
               <option value="completed">הושלם</option>
               <option value="cancelled">בוטל</option>
             </select>
-            <button className={styles.createButton} onClick={() => navigate('/create-appointment')}>
-              + צור פגישה חדשה
-            </button>
           </div>
         </div>
         <div className={styles.appointmentsList}>
@@ -70,18 +69,16 @@ const AppointmentList: React.FC = () => {
                 to={`/appointment/${appointment.id}`}
                 className={styles.appointmentInfo}
               >
-                <h3 className={styles.appointmentTitle}>{appointment.patientName}</h3>
+                <h3 className={styles.appointmentTitle}>
+                    {appointment.patient?.user?.first_name} {appointment.patient?.user?.last_name}
+                </h3>
                 <p className={styles.appointmentDetails}>
-                  {new Date(appointment.date).toLocaleDateString('he-IL')} - {appointment.time}
+                  {new Date(appointment.scheduled_date).toLocaleDateString('he-IL')} - {appointment.scheduled_time}
                 </p>
               </Link>
-              <div className={styles[`status${appointment.status}`]}>
-                {appointment.status === 'pending' ? 'ממתין' :
+              <div className={`${styles.status} ${styles[appointment.status]}`}>
+                {appointment.status === 'scheduled' ? 'מתוכנן' :
                   appointment.status === 'completed' ? 'הושלם' : 'בוטל'}
-              </div>
-              <div className={styles.cardActions}>
-                <button className={styles.editButton} onClick={() => navigate(`/edit-appointment/${appointment.id}`)}>ערוך</button>
-                <button className={styles.cancelButton}>בטל</button>
               </div>
             </div>
           ))}

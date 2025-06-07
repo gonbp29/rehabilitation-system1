@@ -1,61 +1,70 @@
 import { Model, DataTypes } from 'sequelize';
-import { sequelize } from '../config/database';
+import sequelize from '../config/database';
 import User from './User';
 import Therapist from './Therapist';
 
 class Patient extends Model {
   public id!: string;
-  public userId!: string;
-  public therapistId?: string;
-  public condition?: string;
+  public user_id!: string;
+  public therapist_id!: string;
+  public date_of_birth!: Date;
+  public condition!: string;
   public status!: 'active' | 'inactive';
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  public readonly created_at!: Date;
+  public readonly updated_at!: Date;
 }
 
 Patient.init(
   {
     id: {
-      type: DataTypes.STRING(36),
+      type: DataTypes.UUID,
       primaryKey: true,
       defaultValue: DataTypes.UUIDV4,
     },
-    userId: {
-      type: DataTypes.STRING(36),
+    user_id: {
+      type: DataTypes.UUID,
       allowNull: false,
+      unique: true,
       references: {
         model: User,
         key: 'id',
       },
     },
-    therapistId: {
-      type: DataTypes.STRING(36),
-      allowNull: true,
+    therapist_id: {
+      type: DataTypes.UUID,
+      allowNull: false,
       references: {
         model: Therapist,
         key: 'id',
       },
     },
+    date_of_birth: {
+      type: DataTypes.DATEONLY,
+      allowNull: false,
+    },
     condition: {
-      type: DataTypes.TEXT,
-      allowNull: true,
+      type: DataTypes.STRING(200),
+      allowNull: false,
     },
     status: {
       type: DataTypes.ENUM('active', 'inactive'),
       defaultValue: 'active',
+      allowNull: false,
     },
   },
   {
     sequelize,
     modelName: 'Patient',
+    tableName: 'Patients',
+    timestamps: true,
+    underscored: true,
   }
 );
 
-// Define associations
-Patient.belongsTo(User, { foreignKey: 'userId' });
-User.hasOne(Patient, { foreignKey: 'userId' });
+Patient.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
+User.hasOne(Patient, { foreignKey: 'user_id', as: 'patient' });
 
-Patient.belongsTo(Therapist, { foreignKey: 'therapistId' });
-Therapist.hasMany(Patient, { foreignKey: 'therapistId' });
+Patient.belongsTo(Therapist, { foreignKey: 'therapist_id', as: 'therapist' });
+Therapist.hasMany(Patient, { foreignKey: 'therapist_id', as: 'patients' });
 
 export default Patient; 

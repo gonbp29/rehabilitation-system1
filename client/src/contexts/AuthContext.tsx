@@ -1,20 +1,13 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { User } from '../types';
-import api from '../services/api';
+import { User, LoginData, RegisterData } from '../types';
+import { login as apiLogin, register as apiRegister } from '../services/api';
 
 interface AuthContextType {
-  user: User | null;
+  user: (User & { role_id?: string }) | null;
   loading: boolean;
   error: string | null;
-  login: (email: string, password: string) => Promise<void>;
-  register: (data: {
-    email: string;
-    password: string;
-    firstName: string;
-    lastName: string;
-    phoneNumber: string;
-    role: 'patient' | 'therapist';
-  }) => Promise<void>;
+  login: (data: LoginData) => Promise<void>;
+  register: (data: RegisterData) => Promise<void>;
   logout: () => void;
 }
 
@@ -29,35 +22,33 @@ export const useAuth = () => {
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<(User & { role_id?: string }) | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (token) {
-      // Verify token and get user data
-      api.get('/auth/me')
-        .then(response => {
-          setUser(response.data);
-        })
-        .catch(() => {
-          localStorage.removeItem('token');
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    } else {
-      setLoading(false);
+    const userData = localStorage.getItem('user');
+    
+    if (token && userData) {
+      try {
+        const parsedUser = JSON.parse(userData);
+        setUser(parsedUser);
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+      }
     }
+    setLoading(false);
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (data: LoginData) => {
     try {
       setError(null);
-      const response = await api.post('/auth/login', { email, password });
-      const { token, user } = response.data;
+      const { token, user } = await apiLogin(data);
       localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
       setUser(user);
     } catch (err) {
       setError('שם משתמש או סיסמה שגויים');
@@ -65,19 +56,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const register = async (data: {
-    email: string;
-    password: string;
-    firstName: string;
-    lastName: string;
-    phoneNumber: string;
-    role: 'patient' | 'therapist';
-  }) => {
+  const register = async (data: RegisterData) => {
     try {
       setError(null);
-      const response = await api.post('/auth/register', data);
-      const { token, user } = response.data;
+      const { token, user } = await apiRegister(data);
       localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
       setUser(user);
     } catch (err) {
       setError('שגיאה בהרשמה');
@@ -87,6 +71,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     setUser(null);
   };
 

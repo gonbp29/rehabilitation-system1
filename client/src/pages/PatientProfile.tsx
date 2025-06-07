@@ -1,195 +1,133 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { getPatient, createRehabPlan } from '../services/api';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { getPatient, getPatientExercises, getExerciseLibrary, assignExercises } from '../services/api';
+import { Patient, PatientExercise, Exercise } from '../types';
 import styles from './PatientProfile.module.css';
 import ReactModal from 'react-modal';
-import exerciseBank from '../data/exerciseBank.json';
 
 const PatientProfile: React.FC = () => {
   const { id: patientId } = useParams<{ id: string }>();
-  const [patient, setPatient] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const queryClient = useQueryClient();
+
   const [showModal, setShowModal] = useState(false);
-  const [selectedExercises, setSelectedExercises] = useState<string[]>([]);
-  const [planTitle, setPlanTitle] = useState('');
+  const [selectedExercises, setSelectedExercises] = useState<Partial<PatientExercise>[]>([]);
 
-  useEffect(() => {
-    if (!patientId) return;
-    setLoading(true);
-    getPatient(patientId)
-      .then((data) => {
-        setPatient(data);
-        setError('');
-      })
-      .catch(() => {
-        setPatient(null);
-        setError('לא נמצא מטופל');
-      })
-      .finally(() => setLoading(false));
-  }, [patientId]);
+  const { data: patient, isLoading: patientLoading } = useQuery<Patient>({
+    queryKey: ['patient', patientId],
+    queryFn: () => getPatient(patientId!),
+    enabled: !!patientId,
+  });
 
-  const handleExerciseToggle = (id: string) => {
-    setSelectedExercises((prev) =>
-      prev.includes(id) ? prev.filter((eid) => eid !== id) : [...prev, id]
-    );
-  };
+  const { data: assignedExercises, isLoading: exercisesLoading } = useQuery<PatientExercise[]>({
+      queryKey: ['patientExercises', patientId],
+      queryFn: () => getPatientExercises(patientId!),
+      enabled: !!patientId,
+  });
 
-  const handleSavePlan = async () => {
-    if (!planTitle || selectedExercises.length === 0) {
-      alert('יש להזין שם תוכנית ולבחור לפחות תרגיל אחד');
-      return;
-    }
-    try {
-      await createRehabPlan({
-        title: planTitle,
-        description: '',
-        status: 'active',
-        startDate: new Date().toISOString().slice(0, 10),
-        endDate: '',
-        progress: 0,
-        patientId: patientId || '',
-        therapistId: patient?.therapistId || '',
-        exercises: exerciseBank
-          .filter((ex: any) => selectedExercises.includes(ex.id))
-          .map((ex: any) => ({
-            ...ex,
-            sets: 3,
-            repetitions: 10,
-            duration: 10,
-            status: 'active',
-          })),
-        goals: [],
-      });
-      setShowModal(false);
-      setPlanTitle('');
-      setSelectedExercises([]);
-      // Refresh patient data to show new plan
-      if (patientId) {
-        setLoading(true);
-        getPatient(patientId)
-          .then((data) => {
-            setPatient(data);
-            setError('');
-          })
-          .catch(() => {
-            setPatient(null);
-            setError('לא נמצא מטופל');
-          })
-          .finally(() => setLoading(false));
+  const { data: exerciseLibrary } = useQuery<Exercise[]>({
+      queryKey: ['exerciseLibrary'],
+      queryFn: () => getExerciseLibrary(),
+  });
+
+  const assignMutation = useMutation({
+      mutationFn: (exercises: Partial<PatientExercise>[]) => assignExercises(patientId!, exercises),
+      onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: ['patientExercises', patientId] });
+          setShowModal(false);
+          setSelectedExercises([]);
+      },
+      onError: (error) => {
+          console.error("Error assigning exercises", error);
+          alert("Failed to assign exercises.");
       }
-    } catch (err) {
-      alert('שגיאה בשמירת התוכנית');
-    }
+  });
+
+  const handleSelectExercise = (exercise: Exercise) => {
+      const newAssignment: Partial<PatientExercise> = {
+          exercise_id: exercise.id,
+          sets: exercise.default_sets,
+          repetitions: exercise.default_repetitions,
+          duration_seconds: exercise.default_duration_seconds,
+          status: 'assigned',
+          exercise,
+      };
+      setSelectedExercises(prev => [...prev, newAssignment]);
+  }
+
+  const handleSaveAssignments = () => {
+    const assignmentsToSave = selectedExercises.map(ex => ({
+        exercise_id: ex.exercise_id,
+        sets: ex.sets,
+        repetitions: ex.repetitions,
+        duration_seconds: ex.duration_seconds,
+        frequency_per_week: 7, // Default to 7 days a week
+    }));
+    assignMutation.mutate(assignmentsToSave);
   };
 
-  if (loading) return <div>טוען...</div>;
-  if (error || !patient) return <div>{error || 'לא נמצא מטופל'}</div>;
 
-  const activeRehabPlans = (patient.rehabPlans || []).filter((plan: any) => plan.status === 'active');
-  const completedRehabPlans = (patient.rehabPlans || []).filter((plan: any) => plan.status === 'completed');
+  if (patientLoading || exercisesLoading) return <div>טוען...</div>;
+  if (!patient) return <div>לא נמצא מטופל</div>;
 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h1>{patient.User.firstName} {patient.User.lastName}</h1>
+        <h1>{patient.user?.first_name} {patient.user?.last_name}</h1>
         <div className={styles.contactInfo}>
-          <p>Email: {patient.User.email}</p>
-          <p>Phone: {patient.User.phoneNumber}</p>
+          <p>Email: {patient.user?.email}</p>
+          <p>Phone: {patient.user?.phone}</p>
+          <p>Condition: {patient.condition}</p>
         </div>
         <button className={styles.addPlanButton} onClick={() => setShowModal(true)}>
-          הוסף תוכנית שיקום
+          הקצאת תרגילים
         </button>
       </div>
-      // @ts-ignore
+
       <ReactModal
         isOpen={showModal}
         onRequestClose={() => setShowModal(false)}
-        contentLabel="הוספת תוכנית שיקום"
+        contentLabel="הקצאת תרגילים"
         className={styles.modal}
         overlayClassName={styles.overlay}
         ariaHideApp={false}
       >
-        <h2>יצירת תוכנית שיקום חדשה</h2>
-        <div className={styles.formGroup}>
-          <label className={styles.label}>שם התוכנית:</label>
-          <input
-            type="text"
-            value={planTitle}
-            onChange={e => setPlanTitle(e.target.value)}
-            className={styles.input}
-          />
-        </div>
-        <h3 className={styles.subtitle}>בחר תרגילים מהמאגר:</h3>
-        <div className={styles.exerciseGrid}>
-          {exerciseBank.map((ex: any) => (
-            <div key={ex.id} className={styles.exerciseCard}>
-              <strong className={styles.exerciseName}>{ex.name}</strong>
-              <div className={styles.exerciseDesc}>{ex.description}</div>
-              <div className={styles.exerciseMeta}>קטגוריה: {ex.category}</div>
-              <div className={styles.exerciseMeta}>רמת קושי: {ex.difficulty}</div>
-              <div className={styles.exerciseMeta}>ציוד: {ex.equipment}</div>
-              <label className={styles.checkboxLabel}>
-                <input
-                  type="checkbox"
-                  checked={selectedExercises.includes(ex.id)}
-                  onChange={() => handleExerciseToggle(ex.id)}
-                  className={styles.checkbox}
-                />
-                הוסף לתוכנית
-              </label>
+        <h2>הקצאת תרגילים חדשים</h2>
+        <div className={styles.modalContent}>
+            <div className={styles.exerciseSelection}>
+                <h3>מאגר תרגילים</h3>
+                <div className={styles.exerciseGrid}>
+                    {exerciseLibrary?.map((ex) => (
+                        <div key={ex.id} className={styles.exerciseCard} onClick={() => handleSelectExercise(ex)}>
+                           {ex.name}
+                        </div>
+                    ))}
+                </div>
             </div>
-          ))}
+            <div className={styles.selectedExercises}>
+                <h3>תרגילים שנבחרו</h3>
+                {selectedExercises.map((se, index) => (
+                    <div key={index} className={styles.selectedCard}>
+                        {se.exercise?.name}
+                    </div>
+                ))}
+            </div>
         </div>
-        <button className={styles.saveButton} onClick={handleSavePlan}>
-          שמור תוכנית שיקום
+        <button className={styles.saveButton} onClick={handleSaveAssignments} disabled={assignMutation.isPending}>
+          {assignMutation.isPending ? 'מקצה...' : 'שמור הקצאה'}
         </button>
-        <button className={styles.cancelButton} onClick={() => setShowModal(false)}>
-          ביטול
-        </button>
+        <button className={styles.cancelButton} onClick={() => setShowModal(false)}>ביטול</button>
       </ReactModal>
+
       <div className={styles.content}>
         <div className={styles.section}>
-          <h2 className={styles.sectionTitle}>Active Rehabilitation Plans</h2>
-          <div className={styles.rehabPlansList}>
-            {activeRehabPlans.map((plan: any) => (
-              <div key={plan.id} className={styles.rehabPlanCard}>
-                <div className={styles.rehabPlanHeader}>
-                  <h3>{plan.title}</h3>
-                  <span className={styles.status}>{plan.status}</span>
-                </div>
-                <div className={styles.progress}>
-                  <div className={styles.progressBar}>
-                    <div
-                      className={styles.progressFill}
-                      style={{ width: `${plan.progress || 0}%` }}
-                    />
-                  </div>
-                  <span className={styles.progressText}>{plan.progress || 0}%</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className={styles.section}>
-          <h2 className={styles.sectionTitle}>Completed Rehabilitation Plans</h2>
-          <div className={styles.rehabPlansList}>
-            {completedRehabPlans.map((plan: any) => (
-              <div key={plan.id} className={styles.rehabPlanCard}>
-                <div className={styles.rehabPlanHeader}>
-                  <h3>{plan.title}</h3>
-                  <span className={styles.status}>{plan.status}</span>
-                </div>
-                <div className={styles.progress}>
-                  <div className={styles.progressBar}>
-                    <div
-                      className={styles.progressFill}
-                      style={{ width: `${plan.progress || 0}%` }}
-                    />
-                  </div>
-                  <span className={styles.progressText}>{plan.progress || 0}%</span>
-                </div>
+          <h2 className={styles.sectionTitle}>תרגילים שהוקצו</h2>
+          <div className={styles.assignedList}>
+            {assignedExercises?.map((pe) => (
+              <div key={pe.id} className={styles.assignedCard}>
+                <h4>{pe.exercise?.name}</h4>
+                <p>סטים: {pe.sets}, חזרות: {pe.repetitions}, משך: {pe.duration_seconds} שניות</p>
+                <p>סטטוס: {pe.status}</p>
               </div>
             ))}
           </div>

@@ -1,120 +1,100 @@
 export interface User {
   id: string;
   email: string;
-  firstName: string;
-  lastName: string;
-  role: 'patient' | 'therapist';
-  phoneNumber: string;
-  dateOfBirth: string;
+  first_name: string;
+  last_name: string;
+  phone?: string;
+  role: 'therapist' | 'patient';
+  created_at: string;
+  updated_at: string;
 }
 
-export interface Patient extends User {
-  role: 'patient';
-  condition: string;
-  therapistId: string;
-  status: 'active' | 'inactive';
-  rehabPlans?: RehabPlan[];
-}
-
-export interface Therapist extends User {
-  role: 'therapist';
+export interface Therapist {
+  id: string;
+  user_id: string;
   specialization: string;
+  user?: User;
   patients?: Patient[];
+}
+
+export interface Patient {
+  id: string;
+  user_id: string;
+  therapist_id: string;
+  date_of_birth: string;
+  condition: string;
+  status: 'active' | 'inactive';
+  user?: User;
+  therapist?: Therapist;
 }
 
 export interface Exercise {
   id: string;
   name: string;
   description: string;
-  videoUrl: string;
   instructions: string;
-  duration: number;
-  repetitions?: number;
-  sets?: number;
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
-  type: 'squat' | 'plank' | 'pushup' | 'other';
-  category: 'core' | 'upper' | 'lower' | 'full';
-  requiredEquipment?: Equipment[];
+  category: string;
+  difficulty_level: 'beginner' | 'intermediate' | 'advanced';
+  default_sets: number;
+  default_repetitions: number;
+  default_duration_seconds: number;
 }
 
-export interface RehabPlanExercise {
+export interface PatientExercise {
   id: string;
-  rehabPlanId: string;
-  exerciseId: string;
-  orderIndex: number;
-  isCompleted: boolean;
-  status: 'pending' | 'completed' | 'skipped';
-  completedAt?: string;
+  patient_id: string;
+  exercise_id: string;
+  assigned_date: string;
+  assigned_by_therapist_id: string;
+  sets: number;
+  repetitions: number;
+  duration_seconds: number;
+  frequency_per_week: number;
+  status: 'assigned' | 'active' | 'completed' | 'paused';
   notes?: string;
   exercise?: Exercise;
 }
 
-export interface RehabPlan {
+export interface ExerciseCompletion {
   id: string;
-  patientId: string;
-  therapistId: string;
-  title: string;
-  description: string;
-  startDate: string;
-  endDate: string;
-  status: 'active' | 'completed' | 'on-hold';
-  goals: RehabGoal[];
-  exercises: Exercise[];
-  progress: number;
-}
-
-export interface RehabGoal {
-  id: string;
-  planId: string;
-  title: string;
-  description: string;
-  targetDate: string;
-  status: 'pending' | 'in-progress' | 'achieved';
-  measurementCriteria: string;
-  progress: number;
+  patient_exercise_id: string;
+  completed_date: string;
+  sets_completed: number;
+  repetitions_completed: number;
+  duration_completed_seconds: number;
+  pain_level: number;
+  difficulty_rating: number;
+  notes?: string;
 }
 
 export interface Appointment {
   id: string;
-  patientId: string;
-  therapistId: string;
-  planId: string;
-  date: string;
-  time: string;
-  type: 'initial' | 'follow-up' | 'exercise';
+  patient_id: string;
+  therapist_id: string;
+  scheduled_date: string;
+  scheduled_time: string;
+  duration_minutes: number;
+  type: 'consultation' | 'follow_up' | 'assessment';
   status: 'scheduled' | 'completed' | 'cancelled';
-  notes?: string;
-  location?: string;
-  patientName?: string;
-  reminderTime?: '30min' | '1hour' | '1day';
+  session_notes?: string;
+  patient?: Patient;
+  therapist?: Therapist;
 }
 
-export interface ExerciseSession {
-  id: string;
-  appointmentId: string;
-  patientId: string;
-  exerciseId: string;
-  date: string;
-  startTime: string;
-  endTime: string;
-  completed: boolean;
-  performance: {
-    accuracy: number;
-    correctPosture: boolean;
-    completedRepetitions: number;
-    completedSets: number;
-    notes: string;
-  };
+export interface LoginData {
+    email: string;
+    password: string;
 }
 
-export interface Equipment {
-  id: string;
-  name: string;
-  description: string;
-  category: string;
-  yadSaraLocation: {
-    branchName: string;
-    address: string;
-    availability: boolean;
-  };
+export interface RegisterData {
+    email: string;
+    password: string;
+    first_name: string;
+    last_name: string;
+    phone?: string;
+    role: 'therapist' | 'patient';
+    specialization?: string;
+    therapist_id?: string;
+    date_of_birth?: string;
+    condition?: string;
 } 

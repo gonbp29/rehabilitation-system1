@@ -2,6 +2,10 @@
   "name": "rehabilitation-system",
   "version": "1.0.0",
   "description": "Rehabilitation System - Full Stack Application",
+  "engines": {
+    "node": "20.18.1",
+    "npm": ">=8.0.0"
+  },
   "scripts": {
     "start": "concurrently \"npm run start:client\" \"npm run start:server\"",
     "start:client": "cd client && npm start",

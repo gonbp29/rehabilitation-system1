@@ -1,51 +1,62 @@
 .container {
-  padding: 2rem;
+  padding: var(--spacing-xl);
   max-width: 1200px;
   margin: 0 auto;
+  background-color: var(--background-body);
+  min-height: 100vh;
 }
 
 .header {
-  margin-bottom: 2rem;
+  margin-bottom: var(--spacing-xl);
   text-align: right;
 }
 
 .header h1 {
   font-size: 2rem;
-  color: #2c3e50;
+  color: var(--text-primary);
   margin: 0;
+  font-weight: 600;
 }
 
 .header p {
-  color: #64748b;
-  margin: 0.5rem 0 0;
+  color: var(--text-secondary);
+  margin: var(--spacing-sm) 0 0;
+  font-size: 1.1rem;
 }
 
 .statsContainer {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
 }
 
 .statCard {
-  background: white;
+  background: var(--background-light);
   border-radius: 12px;
-  padding: 1.5rem;
+  padding: var(--spacing-lg);
   display: flex;
   align-items: center;
-  gap: 1rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  gap: var(--spacing-md);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border-light);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.statCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
 .statIcon {
   width: 48px;
   height: 48px;
-  background: #e8f0fe;
+  background: var(--primary-light);
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #1976d2;
+  color: var(--primary-color);
 }
 
 .statIcon svg {
@@ -55,185 +66,201 @@
 
 .statContent h3 {
   font-size: 1.5rem;
-  color: #2c3e50;
+  color: var(--text-primary);
   margin: 0;
+  font-weight: 700;
 }
 
 .statContent p {
-  color: #64748b;
-  margin: 0.25rem 0 0;
+  color: var(--text-secondary);
+  margin: var(--spacing-xs) 0 0;
   font-size: 0.9rem;
+  font-weight: 500;
 }
 
 .mainContent {
   display: grid;
-  gap: 2rem;
+  gap: var(--spacing-xl);
 }
 
 .section {
-  background: white;
+  background: var(--background-light);
   border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: var(--spacing-lg);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border-light);
 }
 
 .sectionHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .sectionHeader h2 {
   font-size: 1.25rem;
-  color: #2c3e50;
+  color: var(--text-primary);
   margin: 0;
+  font-weight: 600;
 }
 
 .link {
-  color: #1976d2;
+  color: var(--primary-color);
   text-decoration: none;
   font-size: 0.9rem;
+  font-weight: 500;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
 }
 
 .link:hover {
-  text-decoration: underline;
+  background-color: var(--primary-light);
+  color: var(--primary-dark);
+  text-decoration: none;
 }
 
 .exercisesList {
   display: grid;
-  gap: 1rem;
+  gap: var(--spacing-md);
 }
 
 .exerciseCard {
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-color);
   border-radius: 8px;
-  padding: 1rem;
+  padding: var(--spacing-md);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background: var(--background-light);
+  transition: all 0.2s ease;
+}
+
+.exerciseCard:hover {
+  border-color: var(--primary-color);
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.15);
 }
 
 .exerciseInfo h3 {
   font-size: 1rem;
-  color: #2c3e50;
-  margin: 0 0 0.5rem;
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-sm);
+  font-weight: 600;
 }
 
 .exerciseInfo p {
-  color: #64748b;
-  margin: 0 0 0.5rem;
+  color: var(--text-secondary);
+  margin: 0 0 var(--spacing-sm);
   font-size: 0.9rem;
 }
 
 .duration {
-  color: #1976d2;
+  color: var(--primary-color);
   font-size: 0.9rem;
+  font-weight: 500;
 }
 
 .startButton {
-  background: #1976d2;
-  color: white;
-  padding: 0.5rem 1rem;
+  background: var(--primary-color);
+  color: var(--background-light);
+  padding: var(--spacing-sm) var(--spacing-md);
   border-radius: 6px;
   text-decoration: none;
   font-size: 0.9rem;
-  transition: background-color 0.2s;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+  border: none;
+  cursor: pointer;
 }
 
 .startButton:hover {
-  background: #1565c0;
+  background: var(--primary-dark);
+  color: var(--background-light);
+  text-decoration: none;
 }
 
 .appointmentsList {
   display: grid;
-  gap: 1rem;
+  gap: var(--spacing-md);
 }
 
 .appointmentCard {
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-color);
   border-radius: 8px;
-  padding: 1rem;
+  padding: var(--spacing-md);
+  background: var(--background-light);
+  transition: all 0.2s ease;
+}
+
+.appointmentCard:hover {
+  border-color: var(--primary-color);
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.15);
 }
 
 .appointmentInfo {
   display: flex;
-  gap: 1rem;
+  gap: var(--spacing-md);
 }
 
 .appointmentDate {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0.5rem;
-  background: #f8fafc;
+  padding: var(--spacing-sm);
+  background: var(--background-gray);
   border-radius: 6px;
   min-width: 100px;
 }
 
 .appointmentDate strong {
-  color: #2c3e50;
+  color: var(--text-primary);
   font-size: 0.9rem;
+  font-weight: 600;
 }
 
 .appointmentDate span {
-  color: #64748b;
+  color: var(--text-secondary);
   font-size: 0.8rem;
-  margin-top: 0.25rem;
+  margin-top: var(--spacing-xs);
 }
 
 .appointmentDetails h3 {
   font-size: 1rem;
-  color: #2c3e50;
-  margin: 0 0 0.25rem;
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-xs);
+  font-weight: 600;
 }
 
 .appointmentDetails p {
-  color: #64748b;
+  color: var(--text-secondary);
   margin: 0;
   font-size: 0.9rem;
 }
 
 .progressCard {
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-color);
   border-radius: 8px;
-  padding: 1rem;
+  padding: var(--spacing-md);
+  background: var(--background-light);
 }
 
-.progressHeader {
-  margin-bottom: 1rem;
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-2xl);
+  color: var(--text-secondary);
+  font-size: 1.1rem;
 }
 
-.progressHeader h3 {
-  font-size: 1rem;
-  color: #2c3e50;
-  margin: 0 0 0.25rem;
-}
-
-.progressHeader p {
-  color: #64748b;
-  margin: 0;
-  font-size: 0.9rem;
-}
-
-.progressBar {
-  height: 8px;
-  background: #e2e8f0;
-  border-radius: 4px;
-  overflow: hidden;
-  margin-bottom: 0.5rem;
-}
-
-.progressFill {
-  height: 100%;
-  background: #1976d2;
-  border-radius: 4px;
-  transition: width 0.3s ease;
-}
-
-.progressText {
-  color: #64748b;
-  font-size: 0.9rem;
-  margin: 0;
+.error {
+  color: var(--error-color);
+  background-color: var(--error-light);
+  padding: var(--spacing-md);
+  border-radius: 8px;
+  border: 1px solid var(--error-color);
   text-align: center;
 } 
