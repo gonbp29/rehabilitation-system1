@@ -1,46 +1,224 @@
 .container {
     padding: 2rem;
-    background-color: #f9f9f9;
+    background-color: #f8f9fa;
+    min-height: 100vh;
+    direction: rtl;
 }
 
 .header {
-    margin-bottom: 2rem;
     text-align: center;
+    margin-bottom: 2.5rem;
 }
 
-.header h1 {
+.title {
     font-size: 2.5rem;
-    color: #333;
+    font-weight: 700;
+    color: #343a40;
+    margin-bottom: 0.5rem;
 }
 
-.exercisesGrid {
+.subtitle {
+    font-size: 1.1rem;
+    color: #6c757d;
+    margin-bottom: 1.5rem;
+}
+
+.addButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    background-color: #007bff;
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.addButton:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+}
+
+.addButton svg {
+    width: 20px;
+    height: 20px;
+}
+
+.exerciseGrid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .exerciseCard {
     background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
     padding: 1.5rem;
-    transition: transform 0.2s;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+    display: flex;
+    flex-direction: column;
 }
 
 .exerciseCard:hover {
     transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
-.exerciseCard h3 {
-    margin-top: 0;
-    font-size: 1.5rem;
-    color: #005f73;
-}
-
-.details {
-    margin-top: 1rem;
+.cardHeader {
     display: flex;
     justify-content: space-between;
-    font-size: 0.9rem;
-    color: #555;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.exerciseName {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #212529;
+    margin: 0;
+}
+
+.deleteButton {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #6c757d;
+    padding: 0.25rem;
+}
+
+.deleteButton:hover {
+    color: #dc3545;
+}
+
+.deleteButton svg {
+    width: 18px;
+    height: 18px;
+}
+
+.exerciseDescription {
+    color: #495057;
+    margin-bottom: 1rem;
+    flex-grow: 1;
+}
+
+.exerciseDetails {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.detailItem {
+    background-color: #e9ecef;
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+}
+
+/* Modal Styles */
+.modal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    right: auto;
+    bottom: auto;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    width: 90%;
+    max-width: 550px;
+    direction: rtl;
+}
+
+.overlay {
+    background-color: rgba(0, 0, 0, 0.75);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+}
+
+.modal h2 {
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 2rem;
+    color: #343a40;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.form input,
+.form textarea,
+.form select {
+    padding: 0.8rem 1rem;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: inherit;
+}
+
+.form textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.formActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.submitButton,
+.cancelButton {
+    padding: 0.7rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.submitButton {
+    background-color: #28a745;
+    color: white;
+}
+
+.submitButton:hover {
+    background-color: #218838;
+}
+
+.submitButton:disabled {
+    background-color: #a5d6a7;
+    cursor: not-allowed;
+}
+
+.cancelButton {
+    background-color: #f1f3f5;
+    color: #495057;
+}
+
+.cancelButton:hover {
+    background-color: #e9ecef;
+}
+
+.loading, .error {
+    text-align: center;
+    padding: 2rem;
+    font-size: 1.2rem;
 } 

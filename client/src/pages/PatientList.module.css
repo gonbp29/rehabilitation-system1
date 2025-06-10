@@ -1,171 +1,163 @@
-.pageBg {
-  background: #f8fafc;
-  min-height: 100vh;
-  padding: 2rem 0;
-}
-
 .container {
-  padding: 0;
-  max-width: 900px;
-  margin: 0 auto;
-}
-
-.header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 2.5rem;
-}
-
-.title {
-  font-size: 2rem;
-  color: var(--primary-blue);
-  margin: 0 0 1.5rem 0;
-  text-align: center;
-}
-
-.actionsRow {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-  justify-content: flex-end;
-  width: 100%;
-  flex-wrap: wrap;
-}
-
-.searchInput {
-  padding: 0.75rem;
-  border: 2px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 1rem;
-  transition: all 0.2s;
-  min-width: 300px;
-}
-
-.searchInput:focus {
-  outline: none;
-  border-color: #1976d2;
-  box-shadow: 0 0 0 3px #b3e5fc44;
-}
-
-.createButton {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  background-color: #1976d2;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.createButton:hover {
-  background-color: #1565c0;
-}
-
-.patientsList {
-  display: flex;
-  flex-direction: column;
-  gap: 2.5rem;
-}
-
-.patientCard {
-  background: #fff;
-  border-radius: 18px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  padding: 1.5rem 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 2rem;
-}
-
-.patientInfo {
-  flex: 1;
-  text-decoration: none;
-  text-align: right;
-}
-
-.patientName {
-  font-weight: bold;
-  color: #222;
-  margin-bottom: 0.25rem;
-  font-size: 1.15rem;
-}
-
-.patientDetails {
-  color: #6b7280;
-  font-size: 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    background-color: #f8f9fa;
+    min-height: calc(100vh - 4rem);
+    direction: rtl;
 }
 
 .loading {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 200px;
-  font-size: 1.2rem;
-  color: #666;
+    text-align: center;
+    padding-top: 5rem;
+    font-size: 1.2rem;
+    color: #6c757d;
 }
 
-.statusactive {
-  color: #10b981;
-  background: #ecfdf5;
-  padding: 0.25rem 1.25rem;
-  border-radius: 16px;
-  font-size: 1rem;
-  font-weight: 500;
-  margin-left: 0.5rem;
+.header {
+    text-align: center;
+    margin-bottom: 2.5rem;
 }
 
-.statusinactive {
-  color: #64748b;
-  background: #f1f5f9;
-  padding: 0.25rem 1.25rem;
-  border-radius: 16px;
-  font-size: 1rem;
-  font-weight: 500;
-  margin-left: 0.5rem;
+.title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #343a40;
+    margin-bottom: 1rem;
 }
 
-.cardActions {
-  display: flex;
-  gap: 0.5rem;
+.searchContainer {
+    max-width: 500px;
+    margin: 0 auto;
 }
 
-.editButton {
-  border: none;
-  border-radius: 8px;
-  padding: 0.5rem 1.5rem;
-  background: #1976d2;
-  color: #fff;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.2s;
+.searchInput {
+    width: 100%;
+    padding: 0.8rem 1.2rem;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.editButton:hover {
-  background: #1565c0;
+.searchInput:focus {
+    outline: none;
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
 }
 
-@media (max-width: 700px) {
-  .container {
-    max-width: 98vw;
-    padding: 0 0.5rem;
-  }
-  .patientCard {
+.patientGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.patientCard {
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    padding: 1.5rem;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
     flex-direction: column;
-    align-items: flex-end;
-    padding: 1rem;
+    justify-content: space-between;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.patientCard:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+
+.cardHeader {
+    display: flex;
+    align-items: center;
     gap: 1rem;
-  }
-  .actionsRow {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.5rem;
-  }
-} 
+    margin-bottom: 1rem;
+}
+
+.avatar {
+    width: 48px;
+    height: 48px;
+    color: #adb5bd;
+    flex-shrink: 0;
+}
+
+.patientInfo {
+    overflow: hidden;
+}
+
+.patientName {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #212529;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.patientCondition {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin: 0.25rem 0 0;
+}
+
+.cardFooter {
+    border-top: 1px solid #e9ecef;
+    padding-top: 1rem;
+    margin-top: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    background-color: #e2e3e5;
+    color: #383d41;
+}
+
+.active {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.inactive {
+    background-color: #e2e3e5;
+    color: #383d41;
+}
+
+.deleteButton {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #6c757d;
+    padding: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease;
+}
+
+.deleteButton:hover {
+    color: #dc3545;
+}
+
+.deleteButton svg {
+    width: 18px;
+    height: 18px;
+}
+
+.noPatients {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: #6c757d;
+    padding: 3rem;
+    background-color: #fff;
+    border-radius: 12px;
+}

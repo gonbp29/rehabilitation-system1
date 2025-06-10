@@ -10,6 +10,7 @@ import exercisesRoutes from './routes/exercises';
 import appointmentsRoutes from './routes/appointments';
 import patientsRoutes from './routes/patients';
 import therapistsRoutes from './routes/therapists';
+import patientExercisesRoutes from './routes/patientExercises';
 
 // Load environment variables
 dotenv.config();
@@ -35,6 +36,7 @@ app.use('/api/exercises', exercisesRoutes);
 app.use('/api/appointments', appointmentsRoutes);
 app.use('/api/patients', patientsRoutes);
 app.use('/api/therapists', therapistsRoutes);
+app.use('/api/patient-exercises', patientExercisesRoutes);
 
 // Health check route for Render
 app.get('/health', (req, res) => {

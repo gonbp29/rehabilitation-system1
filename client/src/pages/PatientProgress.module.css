@@ -1,176 +1,88 @@
 .container {
   padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
+  background-color: #f4f7f6;
+  min-height: 100vh;
+  direction: rtl;
 }
 
-.header {
+.title {
+  text-align: center;
+  font-size: 2.5rem;
+  color: #333;
   margin-bottom: 2rem;
-  text-align: right;
+  font-weight: 600;
 }
 
-.header h1 {
-  font-size: 2rem;
-  color: #2c3e50;
-  margin-bottom: 0.5rem;
-}
-
-.header p {
-  color: #7f8c8d;
-  font-size: 1.1rem;
-}
-
-.statsGrid {
+.progressGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1.5rem;
   margin-bottom: 2rem;
 }
 
-.statCard {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.statIcon {
-  background: #e3f2fd;
-  padding: 1rem;
-  border-radius: 50%;
-  width: 3rem;
-  height: 3rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.statIcon svg {
-  width: 1.5rem;
-  height: 1.5rem;
-  color: #1976d2;
-}
-
-.statContent h3 {
-  font-size: 1.5rem;
-  color: #2c3e50;
-  margin-bottom: 0.25rem;
-}
-
-.statContent p {
-  color: #7f8c8d;
-  font-size: 0.9rem;
-}
-
-.section {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.section h2 {
-  color: #2c3e50;
-  margin-bottom: 1.5rem;
-  font-size: 1.25rem;
-}
-
-.weeklyProgress {
-  background: #f8f9fa;
+.progressCard {
+  background-color: #ffffff;
   border-radius: 8px;
   padding: 1.5rem;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
 }
 
-.progressHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.progressCard:hover {
+  transform: translateY(-5px);
+}
+
+.progressCard h3 {
+  font-size: 1.2rem;
+  color: #555;
   margin-bottom: 1rem;
 }
 
-.progressHeader h3 {
-  color: #2c3e50;
-  font-size: 1.1rem;
-  margin-bottom: 0.25rem;
+.progressCard p {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1a73e8;
 }
 
-.progressHeader p {
-  color: #7f8c8d;
-  font-size: 0.9rem;
-}
-
-.percentage {
-  font-size: 1.25rem;
-  font-weight: bold;
-  color: #1976d2;
-}
-
-.progressBar {
-  height: 8px;
-  background: #e9ecef;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.progressFill {
-  height: 100%;
-  background: #1976d2;
-  border-radius: 4px;
-  transition: width 0.3s ease;
-}
-
-.exercisesList {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.exerciseItem {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem;
-  background: #f8f9fa;
+.chartSection {
+  background-color: #ffffff;
   border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.exerciseInfo h3 {
-  color: #2c3e50;
-  font-size: 1rem;
-  margin-bottom: 0.25rem;
+.chartTitle {
+  text-align: center;
+  font-size: 1.5rem;
+  color: #333;
+  margin-bottom: 1.5rem;
 }
 
-.exerciseInfo p {
-  color: #7f8c8d;
-  font-size: 0.9rem;
-}
-
-.exerciseProgress {
-  text-align: right;
-}
-
-.progressText {
-  display: block;
-  color: #1976d2;
-  font-size: 0.9rem;
+.progressBarContainer {
+  height: 20px;
+  background-color: #e0e0e0;
+  border-radius: 10px;
+  overflow: hidden;
   margin-bottom: 0.5rem;
 }
 
-.miniProgressBar {
-  width: 100px;
-  height: 4px;
-  background: #e9ecef;
-  border-radius: 2px;
-  overflow: hidden;
+.progressBarFill {
+  height: 100%;
+  background: linear-gradient(90deg, #1a73e8, #4285f4);
+  border-radius: 10px;
+  transition: width 0.5s ease-in-out;
 }
 
-.miniProgressFill {
-  height: 100%;
-  background: #1976d2;
-  border-radius: 2px;
-  transition: width 0.3s ease;
+.chartSection p {
+  text-align: center;
+  color: #666;
+  font-size: 1rem;
+}
+
+.loading, .error {
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.2rem;
+  color: #555;
 } 

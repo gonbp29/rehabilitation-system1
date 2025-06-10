@@ -1,143 +1,274 @@
 .pageBg {
-  background: #f8fafc;
+  background-color: #f8f9fa;
   min-height: 100vh;
-  padding: 2rem 0;
+  direction: rtl;
 }
 
 .container {
-  padding: 0;
   max-width: 900px;
   margin: 0 auto;
+  padding: 2rem;
 }
 
 .header {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  margin-bottom: 3rem;
+  margin-bottom: 1.5rem;
 }
 
 .title {
-  font-size: 2rem;
-  color: var(--primary-blue);
-  margin: 0 0 1.5rem 0;
-  text-align: center;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #343a40;
+}
+
+.addButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border: none;
+  border-radius: 8px;
+  background-color: #007bff;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.addButton:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+}
+
+.addButton svg {
+  width: 20px;
+  height: 20px;
 }
 
 .actionsRow {
   display: flex;
   gap: 1rem;
-  align-items: center;
-  justify-content: flex-end;
-  width: 100%;
-  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+.searchInput,
+.filterSelect {
+  padding: 0.75rem 1rem;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+  font-size: 1rem;
+  flex-grow: 1;
+}
+
+.filterSelect {
+  flex-grow: 0;
+  min-width: 150px;
 }
 
 .appointmentsList {
   display: flex;
   flex-direction: column;
-  gap: 2.5rem;
+  gap: 1rem;
 }
 
 .appointmentCard {
-  background: #fff;
-  border-radius: 18px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  padding: 1.5rem 2rem;
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  gap: 2rem;
+  align-items: center;
+  transition: box-shadow 0.3s ease, border-left 0.3s ease;
+  border-left: 5px solid transparent;
+}
+
+.appointmentCard:hover {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  border-left: 5px solid #007bff;
 }
 
 .appointmentInfo {
-  flex: 1;
   text-decoration: none;
-  text-align: right;
+  color: inherit;
+  flex-grow: 1;
+}
+
+.patientDetails {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.patientAvatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: #e9ecef;
+  color: #495057;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: 600;
 }
 
 .appointmentTitle {
-  font-weight: bold;
-  color: #222;
-  margin-bottom: 0.25rem;
   font-size: 1.15rem;
+  font-weight: 600;
+  color: #212529;
+  margin: 0 0 0.25rem;
 }
 
-.appointmentDetails {
-  color: #6b7280;
-  font-size: 1rem;
-}
-
-.loading {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 200px;
-  font-size: 1.2rem;
-  color: #666;
-}
-
-.statuspending {
-  color: #fb923c;
-  background: #fff7ed;
-  padding: 0.25rem 1.25rem;
-  border-radius: 16px;
-  font-size: 1rem;
-  font-weight: 500;
-  margin-left: 0.5rem;
-}
-
-.statuscompleted {
-  color: #10b981;
-  background: #ecfdf5;
-  padding: 0.25rem 1.25rem;
-  border-radius: 16px;
-  font-size: 1rem;
-  font-weight: 500;
-  margin-left: 0.5rem;
-}
-
-.statuscancelled {
-  color: #ef4444;
-  background: #fee2e2;
-  padding: 0.25rem 1.25rem;
-  border-radius: 16px;
-  font-size: 1rem;
-  font-weight: 500;
-  margin-left: 0.5rem;
+.appointmentTime {
+  font-size: 0.95rem;
+  color: #6c757d;
 }
 
 .cardActions {
   display: flex;
+  align-items: center;
   gap: 0.5rem;
 }
 
-.editButton, .cancelButton {
+.status {
+  padding: 0.3rem 0.8rem;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.scheduled {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.completed {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.cancelled {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.deleteButton {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  color: #6c757d;
+  transition: color 0.2s ease;
+}
+
+.deleteButton:hover {
+  color: #dc3545;
+}
+
+.deleteButton svg {
+  width: 20px;
+  height: 20px;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.2rem;
+  color: #6c757d;
+}
+
+/* Modal Styles */
+.modal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  padding: 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  width: 90%;
+  max-width: 500px;
+  direction: rtl;
+}
+
+.overlay {
+  background-color: rgba(0, 0, 0, 0.75);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+}
+
+.modal h2 {
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 2rem;
+  color: #343a40;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form input,
+.form select {
+  padding: 0.8rem 1rem;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.submitButton,
+.cancelButton {
+  padding: 0.7rem 1.5rem;
   border: none;
   border-radius: 8px;
-  padding: 0.5rem 1.5rem;
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background-color 0.3s ease;
 }
 
-.editButton {
-  background: #1976d2;
-  color: #fff;
+.submitButton {
+  background-color: #28a745;
+  color: white;
 }
 
-.editButton:hover {
-  background: #1565c0;
+.submitButton:hover {
+  background-color: #218838;
+}
+
+.submitButton:disabled {
+  background-color: #a5d6a7;
+  cursor: not-allowed;
 }
 
 .cancelButton {
-  background: #f3f4f6;
-  color: #1976d2;
+  background-color: #f1f3f5;
+  color: #495057;
 }
 
 .cancelButton:hover {
-  background: #e0e7ef;
+  background-color: #e9ecef;
 }
 
 @media (max-width: 700px) {

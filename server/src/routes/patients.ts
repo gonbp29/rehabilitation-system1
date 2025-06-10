@@ -40,13 +40,39 @@ router.put('/:id', authenticateToken, async (req, res) => {
             return res.status(404).json({ error: 'Patient not found' });
         }
 
-        const { condition, status } = req.body;
-        await patient.update({ condition, status });
+        const { condition, status, therapist_id } = req.body;
+        
+        // Build an object with only the fields that are actually provided
+        const updatedFields: { condition?: string, status?: 'active' | 'inactive', therapist_id?: string | null } = {};
+        if (condition !== undefined) updatedFields.condition = condition;
+        if (status !== undefined) updatedFields.status = status;
+        if (therapist_id !== undefined) updatedFields.therapist_id = therapist_id;
+
+        await patient.update(updatedFields);
 
         res.json(patient);
     } catch (error) {
         console.error('Error updating patient:', error);
         res.status(500).json({ error: 'Failed to update patient' });
+    }
+});
+
+// Delete a patient
+router.delete('/:id', authenticateToken, async (req, res) => {
+    try {
+        const patient = await Patient.findByPk(req.params.id);
+        if (!patient) {
+            return res.status(404).json({ error: 'Patient not found' });
+        }
+
+        // Also delete the associated user record
+        await User.destroy({ where: { id: patient.user_id } });
+        await patient.destroy();
+
+        res.status(204).send();
+    } catch (error) {
+        console.error('Error deleting patient:', error);
+        res.status(500).json({ error: 'Failed to delete patient' });
     }
 });
 

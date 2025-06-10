@@ -10,12 +10,13 @@ const PatientProgress: React.FC = () => {
 
     const { data: progress, isLoading, error } = useQuery({
         queryKey: ['patientProgress', patientId],
-        queryFn: () => getPatientProgress(patientId!).then(res => res.data),
+        queryFn: async () => (await getPatientProgress(patientId!)).data,
         enabled: !!patientId,
     });
     
     if (isLoading) return <div className={styles.loading}>טוען...</div>;
     if (error) return <div className={styles.error}>שגיאה בטעינת נתוני ההתקדמות.</div>;
+    if (!progress) return <div className={styles.container}>לא נמצאו נתוני התקדמות.</div>;
 
     return (
         <div className={styles.container}>
@@ -24,15 +25,15 @@ const PatientProgress: React.FC = () => {
             <div className={styles.progressGrid}>
                 <div className={styles.progressCard}>
                     <h3>תרגילים שהוקצו</h3>
-                    <p>{progress?.totalAssigned}</p>
+                    <p>{progress.totalAssigned}</p>
                 </div>
                 <div className={styles.progressCard}>
                     <h3>תרגילים שהושלמו</h3>
-                    <p>{progress?.completed}</p>
+                    <p>{progress.completed}</p>
                 </div>
                 <div className={styles.progressCard}>
                     <h3>אחוז השלמה</h3>
-                    <p>{progress?.completionPercentage.toFixed(2)}%</p>
+                    <p>{progress.completionPercentage.toFixed(2)}%</p>
                 </div>
             </div>
 
@@ -41,10 +42,10 @@ const PatientProgress: React.FC = () => {
                 <div className={styles.progressBarContainer}>
                     <div 
                         className={styles.progressBarFill} 
-                        style={{ width: `${progress?.completionPercentage || 0}%`}}
+                        style={{ width: `${progress.completionPercentage || 0}%`}}
                     />
                 </div>
-                <p>{progress?.completionPercentage.toFixed(2)}% מהתרגילים הושלמו</p>
+                <p>{progress.completionPercentage.toFixed(2)}% מהתרגילים הושלמו</p>
             </div>
         </div>
     );

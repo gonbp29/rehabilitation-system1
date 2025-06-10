@@ -32,7 +32,7 @@ Patient.init(
     },
     therapist_id: {
       type: DataTypes.UUID,
-      allowNull: false,
+      allowNull: true,
       references: {
         model: Therapist,
         key: 'id',
