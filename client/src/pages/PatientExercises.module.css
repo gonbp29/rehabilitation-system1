@@ -62,10 +62,9 @@
   border-radius: 12px;
   padding: 2rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 2rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
   transition: box-shadow 0.3s ease, transform 0.3s ease;
 }
 
@@ -80,9 +79,10 @@
 
 .exerciseHeader {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: flex-start;
   margin-bottom: 1rem;
+  position: relative;
 }
 
 .exerciseHeader h3 {
@@ -92,6 +92,7 @@
 }
 
 .status {
+  align-self: flex-end;
   padding: 0.3rem 0.8rem;
   border-radius: 15px;
   font-size: 0.8rem;
@@ -155,9 +156,10 @@
 }
 
 .actions {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  align-self: flex-end;
+  margin-top: 0.5rem;
+  margin-left: 0;
+  margin-right: auto;
 }
 
 .startButton {
@@ -171,6 +173,8 @@
   border: none;
   font-size: 1rem;
   white-space: nowrap;
+  display: flex;
+  align-items: flex-end;
 }
 
 .startButton:hover {

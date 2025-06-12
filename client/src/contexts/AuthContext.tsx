@@ -63,6 +63,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
       setUser(user);
+      console.log('User after register (AuthContext):', user);
+      if (!user.role_id) {
+        setError('שגיאה בהרשמה: חסר מזהה משתמש.');
+        throw new Error('Missing role_id after register');
+      }
     } catch (err) {
       setError('שגיאה בהרשמה');
       throw err;

@@ -1,0 +1,23 @@
+{
+  "development": {
+    "username": "root",
+    "password": "Aa123456!",
+    "database": "rehabilitation_system",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  },
+  "test": {
+    "username": "root",
+    "password": "Aa123456!",
+    "database": "rehabilitation_system_test",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  },
+  "production": {
+    "username": "root",
+    "password": "Aa123456!",
+    "database": "rehabilitation_system_prod",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  }
+} 

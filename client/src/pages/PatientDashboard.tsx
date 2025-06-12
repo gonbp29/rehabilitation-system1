@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import styles from './PatientDashboard.module.css';
 import { ClockIcon, ChartBarIcon } from '@heroicons/react/24/outline';
 import { getPatientDashboard } from '../services/api';
@@ -9,6 +9,7 @@ import { useAuth } from '../contexts/AuthContext';
 const PatientDashboard: React.FC = () => {
   const { user } = useAuth();
   const patientId = user?.role_id;
+  const navigate = useNavigate();
 
   const [dashboardData, setDashboardData] = useState<{ todaysExercises: PatientExercise[], nextAppointment: Appointment | null }>({ todaysExercises: [], nextAppointment: null });
   const [loading, setLoading] = useState(true);
@@ -78,7 +79,7 @@ const PatientDashboard: React.FC = () => {
                   <h3>{pe.exercise?.name}</h3>
                   <p>{pe.exercise?.description}</p>
                 </div>
-                <button className={styles.startButton}>התחל תרגיל</button>
+                <button className={styles.startButton} onClick={() => navigate('/my-exercises')}>התחל תרגיל</button>
               </div>
             ))}
              {todaysExercises.length === 0 && <p>אין תרגילים להיום. כל הכבוד!</p>}

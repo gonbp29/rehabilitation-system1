@@ -40,7 +40,8 @@ router.post('/', authenticateToken, async (req, res) => {
       difficulty_level,
       default_sets,
       default_repetitions,
-      default_duration_seconds
+      default_duration_seconds,
+      type
     } = req.body;
 
     const exercise = await Exercise.create({
@@ -51,7 +52,8 @@ router.post('/', authenticateToken, async (req, res) => {
       difficulty_level,
       default_sets,
       default_repetitions,
-      default_duration_seconds
+      default_duration_seconds,
+      type
     });
 
     res.status(201).json(exercise);

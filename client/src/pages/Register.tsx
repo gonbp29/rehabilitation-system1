@@ -17,23 +17,42 @@ const Register: React.FC = () => {
     specialization: '',
     date_of_birth: '',
     condition: '',
-    therapist_id: 'a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a0' // Placeholder, needs to be dynamic
+    therapist_id: '' 
   });
+  const [customError, setCustomError] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData(prev => {
+      const newData = {
+        ...prev,
+        [name]: value
+      };
+      return newData;
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setCustomError(null);
     try {
         await register(formData);
+        // הדפסה ל-console לבדוק מה נשמר
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        console.log('User after register:', user);
         navigate('/dashboard');
-    } catch (err) {
+        setCustomError(null);
+    } catch (err: any) {
+      // בדיקת שגיאה מהשרת
+      if (err.response && err.response.data && err.response.data.error) {
+        if (err.response.data.error === 'User already exists') {
+          setCustomError('חשבון קיים במערכת');
+        } else {
+          setCustomError(err.response.data.error);
+        }
+      } else {
+        setCustomError('שגיאה בהרשמה');
+      }
       console.error("Registration failed", err);
     }
   };
@@ -46,7 +65,7 @@ const Register: React.FC = () => {
         </div>
         <div className={styles.card}>
           <h2 className={styles.title}>הרשמה למערכת</h2>
-          {error && <div className={styles.error}>{error}</div>}
+          {customError && <div className={styles.error}>{customError}</div>}
           <form className={styles.form} onSubmit={handleSubmit}>
             <div className={styles.formGroup}>
               <label htmlFor="role" className={styles.label}>סוג משתמש</label>

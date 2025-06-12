@@ -1,7 +1,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { UserGroupIcon, CalendarIcon } from '@heroicons/react/24/outline';
+import { UserGroupIcon, CalendarIcon, PlusIcon, ChartBarIcon } from '@heroicons/react/24/outline';
 import { getTherapistDashboardStats, getTherapistAppointmentsToday } from '../services/api';
 import { Appointment } from '../types';
 import styles from './TherapistDashboard.module.css';
@@ -38,25 +38,25 @@ const TherapistDashboard: React.FC = () => {
 
       <div className={styles.statsGrid}>
         <div className={styles.statCard}>
-          <div className={styles.statHeader}>
+          <Link to="/patients" className={styles.statHeader} style={{ textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}>
             <UserGroupIcon className={styles.icon} />
             <span>מטופלים פעילים</span>
-          </div>
+          </Link>
           <div className={styles.statValue}>{stats?.patientCount || 0}</div>
         </div>
 
         <div className={styles.statCard}>
-          <div className={styles.statHeader}>
+          <Link to="/appointments" className={styles.statHeader} style={{ textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}>
             <CalendarIcon className={styles.icon} />
-            <span>פגישות השבוע</span>
-          </div>
+            <span>פגישות היום</span>
+          </Link>
           <div className={styles.statValue}>{stats?.appointmentsTodayCount || 0}</div>
         </div>
       </div>
 
       <div className={styles.section}>
         <div className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitle}>פגישות השבוע הקרוב</h2>
+          <h2 className={styles.sectionTitle}>פגישות היום</h2>
           <Link to="/appointments" className={styles.sectionLink}>
             כל הפגישות
           </Link>
@@ -76,12 +76,12 @@ const TherapistDashboard: React.FC = () => {
                   </span>
                 </div>
                 <div className={styles.appointmentTime}>
-                  <span>{new Date(appointment.scheduled_date).toLocaleDateString('he-IL')} - {appointment.scheduled_time}</span>
+                  <span>{appointment.scheduled_time}</span>
                 </div>
               </Link>
             ))
           ) : (
-            <p>אין פגישות השבוע הקרוב.</p>
+            <p>אין פגישות היום.</p>
           )}
         </div>
       </div>

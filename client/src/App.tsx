@@ -14,6 +14,8 @@ import ExerciseLibrary from './pages/ExerciseLibrary';
 import PatientExercises from './pages/PatientExercises';
 import PatientAppointments from './pages/PatientAppointments';
 import PatientProgress from './pages/PatientProgress';
+import PatientRehabPlan from './pages/PatientRehabPlan';
+import PatientEquipmentLoan from './pages/PatientEquipmentLoan';
 import styles from './App.module.css';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
@@ -22,6 +24,8 @@ import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
 import { prefixer } from 'stylis';
 import NotFound from './pages/NotFound';
+import ExercisePage from './pages/ExercisePage';
+import ExerciseStart from './pages/ExerciseStart';
 
 const queryClient = new QueryClient();
 
@@ -41,11 +45,29 @@ const TherapistLayout = ({ children }: { children: React.ReactNode }) => {
         <div className={styles.app}>
             <nav className={styles.sidebar}>
                 <h1>מסלו"ל</h1>
-                <NavLink to="/dashboard" className={({ isActive }) => `${styles.navigationLink} ${isActive ? styles.active : ''}`}><HomeIcon className={styles.navigationIcon} />דף הבית</NavLink>
-                <NavLink to="/patients" className={({ isActive }) => `${styles.navigationLink} ${isActive ? styles.active : ''}`}><UserGroupIcon className={styles.navigationIcon} />מטופלים</NavLink>
-                <NavLink to="/appointments" className={({ isActive }) => `${styles.navigationLink} ${isActive ? styles.active : ''}`}><CalendarIcon className={styles.navigationIcon} />פגישות</NavLink>
-                <NavLink to="/exercise-library" className={({ isActive }) => `${styles.navigationLink} ${isActive ? styles.active : ''}`}><ClipboardDocumentListIcon className={styles.navigationIcon} />מאגר תרגילים</NavLink>
-                <button onClick={handleLogout} className={styles.logoutButton}><ArrowRightOnRectangleIcon className={styles.navigationIcon} />התנתקות</button>
+                <NavLink 
+                  to="/dashboard" 
+                  className={({ isActive }: { isActive: boolean }) => `${styles.navigationLink} ${isActive ? styles.active : ''}`}>
+                    <HomeIcon className={styles.navigationIcon} />דף הבית
+                </NavLink>
+                <NavLink 
+                  to="/patients" 
+                  className={({ isActive }: { isActive: boolean }) => `${styles.navigationLink} ${isActive ? styles.active : ''}`}>
+                    <UserGroupIcon className={styles.navigationIcon} />מטופלים
+                </NavLink>
+                <NavLink 
+                  to="/appointments" 
+                  className={({ isActive }: { isActive: boolean }) => `${styles.navigationLink} ${isActive ? styles.active : ''}`}>
+                    <CalendarIcon className={styles.navigationIcon} />פגישות
+                </NavLink>
+                <NavLink 
+                  to="/exercise-library" 
+                  className={({ isActive }: { isActive: boolean }) => `${styles.navigationLink} ${isActive ? styles.active : ''}`}>
+                    <ClipboardDocumentListIcon className={styles.navigationIcon} />מאגר תרגילים
+                </NavLink>
+                <button onClick={handleLogout} className={styles.logoutButton}>
+                  <ArrowRightOnRectangleIcon className={styles.navigationIcon} />התנתקות
+                </button>
             </nav>
             <main className={styles.mainContent}>{children}</main>
         </div>
@@ -61,11 +83,39 @@ const PatientLayout = ({ children }: { children: React.ReactNode }) => {
         <div className={styles.app}>
             <nav className={styles.sidebar}>
                 <h1>מסלו"ל</h1>
-                <NavLink to="/dashboard" className={({ isActive }) => `${styles.navigationLink} ${isActive ? styles.active : ''}`}><HomeIcon className={styles.navigationIcon} />דף הבית</NavLink>
-                <NavLink to="/my-exercises" className={({ isActive }) => `${styles.navigationLink} ${isActive ? styles.active : ''}`}><ClipboardDocumentListIcon className={styles.navigationIcon} />התרגילים שלי</NavLink>
-                <NavLink to="/my-appointments" className={({ isActive }) => `${styles.navigationLink} ${isActive ? styles.active : ''}`}><CalendarIcon className={styles.navigationIcon} />הפגישות שלי</NavLink>
-                <NavLink to="/my-progress" className={({ isActive }) => `${styles.navigationLink} ${isActive ? styles.active : ''}`}><ChartBarIcon className={styles.navigationIcon} />ההתקדמות שלי</NavLink>
-                <button onClick={handleLogout} className={styles.logoutButton}><ArrowRightOnRectangleIcon className={styles.navigationIcon} />התנתקות</button>
+                <NavLink 
+                  to="/dashboard" 
+                  className={({ isActive }: { isActive: boolean }) => `${styles.navigationLink} ${isActive ? styles.active : ''}`}>
+                    <HomeIcon className={styles.navigationIcon} />דף הבית
+                </NavLink>
+                <NavLink 
+                  to="/my-exercises" 
+                  className={({ isActive }: { isActive: boolean }) => `${styles.navigationLink} ${isActive ? styles.active : ''}`}>
+                    <ClipboardDocumentListIcon className={styles.navigationIcon} />התרגילים שלי
+                </NavLink>
+                <NavLink 
+                  to="/my-appointments" 
+                  className={({ isActive }: { isActive: boolean }) => `${styles.navigationLink} ${isActive ? styles.active : ''}`}>
+                    <CalendarIcon className={styles.navigationIcon} />הפגישות שלי
+                </NavLink>
+                <NavLink 
+                  to="/my-progress" 
+                  className={({ isActive }: { isActive: boolean }) => `${styles.navigationLink} ${isActive ? styles.active : ''}`}>
+                    <ChartBarIcon className={styles.navigationIcon} />ההתקדמות שלי
+                </NavLink>
+                <NavLink 
+                  to="/rehab-plan" 
+                  className={({ isActive }: { isActive: boolean }) => `${styles.navigationLink} ${isActive ? styles.active : ''}`}>
+                    <ClipboardDocumentListIcon className={styles.navigationIcon} />תוכנית השיקום
+                </NavLink>
+                <NavLink 
+                  to="/equipment-loan" 
+                  className={({ isActive }: { isActive: boolean }) => `${styles.navigationLink} ${isActive ? styles.active : ''}`}>
+                    <ClipboardDocumentListIcon className={styles.navigationIcon} />הציוד הרפואי
+                </NavLink>
+                <button onClick={handleLogout} className={styles.logoutButton}>
+                  <ArrowRightOnRectangleIcon className={styles.navigationIcon} />התנתקות
+                </button>
             </nav>
             <main className={styles.mainContent}>{children}</main>
         </div>
@@ -121,6 +171,12 @@ const App: React.FC = () => {
                 <Route path="/my-exercises" element={<ProtectedRoute><PatientLayout><PatientExercises /></PatientLayout></ProtectedRoute>} />
                 <Route path="/my-appointments" element={<ProtectedRoute><PatientLayout><PatientAppointments /></PatientLayout></ProtectedRoute>} />
                 <Route path="/my-progress" element={<ProtectedRoute><PatientLayout><PatientProgress /></PatientLayout></ProtectedRoute>} />
+                <Route path="/patient/:id/progress" element={<ProtectedRoute><TherapistLayout><PatientProgress /></TherapistLayout></ProtectedRoute>} />
+                <Route path="/rehab-plan" element={<ProtectedRoute><PatientLayout><PatientRehabPlan /></PatientLayout></ProtectedRoute>} />
+                <Route path="/equipment-loan" element={<ProtectedRoute><PatientLayout><PatientEquipmentLoan /></PatientLayout></ProtectedRoute>} />
+
+                <Route path="/exercise/:exerciseId" element={<ExercisePage />} />
+                <Route path="/ExerciseStart" element={<ExerciseStart />} />
 
                 <Route path="*" element={<NotFound />} />
               </Routes>
@@ -132,4 +188,5 @@ const App: React.FC = () => {
   );
 };
 
-export default App; 
+export default App;
+

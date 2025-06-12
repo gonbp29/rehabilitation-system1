@@ -1,6 +1,6 @@
 import sequelize from './database';
 import { User, Patient, Therapist, Appointment, Exercise, PatientExercise, ExerciseCompletion } from '../models';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 const initDatabase = async () => {
   try {
@@ -36,22 +36,27 @@ const initDatabase = async () => {
         const password_hash = await bcrypt.hash('123456', 10);
 
         for (let i = 0; i < patientsToCreate; i++) {
-            const email = `${String.fromCharCode(97 + patientCount + i)}@gmail.com`;
-            const user = await User.create({
-                email,
-                password_hash,
-                first_name: patientNames[i % patientNames.length],
-                last_name: `Doe${i}`,
-                role: 'patient',
-            });
+            const email = `patient${patientCount + i + 1}@example.com`;
+            
+            // Check if user already exists
+            let user = await User.findOne({ where: { email } });
+            if (!user) {
+                user = await User.create({
+                    email,
+                    password_hash,
+                    first_name: patientNames[i % patientNames.length],
+                    last_name: `Doe${i}`,
+                    role: 'patient',
+                });
 
-            await Patient.create({
-                user_id: user.id,
-                therapist_id: mainTherapist.id,
-                date_of_birth: '1990-01-01',
-                condition: 'General Pain',
-                status: 'active',
-            });
+                await Patient.create({
+                    user_id: user.id,
+                    therapist_id: mainTherapist.id,
+                    date_of_birth: '1990-01-01',
+                    condition: 'General Pain',
+                    status: 'active',
+                });
+            }
         }
         console.log(`Created ${patientsToCreate} mock patients.`);
     }
@@ -96,7 +101,7 @@ const initDatabase = async () => {
                 await PatientExercise.create({
                     patient_id: patient.id,
                     exercise_id: randomExercise.id,
-                    assigned_by_therapist_id: patient.therapist_id, // Use patient's own therapist
+                    assigned_by_therapist_id: patient.therapist_id,
                     assigned_date: new Date(),
                     sets: 3,
                     repetitions: 12,
@@ -110,7 +115,7 @@ const initDatabase = async () => {
             if (appointmentCount === 0) {
                 await Appointment.create({
                     patient_id: patient.id,
-                    therapist_id: patient.therapist_id, // Use patient's own therapist
+                    therapist_id: patient.therapist_id,
                     scheduled_date: new Date(Date.now() + (Math.floor(Math.random() * 7) + 1) * 86400000), 
                     scheduled_time: '11:00:00',
                     duration_minutes: 45,

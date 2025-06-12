@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import styles from './PatientExercises.module.css';
 import { getPatientExercises, completePatientExercise } from '../services/api';
 import { PatientExercise } from '../types';
@@ -6,39 +7,62 @@ import { useAuth } from '../contexts/AuthContext';
 
 const PatientExercises: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [exercises, setExercises] = useState<PatientExercise[]>([]);
   const [filter, setFilter] = useState<'all' | 'assigned' | 'completed'>('all');
+  const [loadingCompleteId, setLoadingCompleteId] = useState<string | null>(null);
 
-  useEffect(() => {
+  const loadExercises = () => {
     if (user?.role_id) {
       getPatientExercises(user.role_id)
-        .then((response) => setExercises(response))
+        .then(setExercises)
         .catch((err) => console.error('Error fetching exercises:', err));
     }
+  };
+
+  useEffect(() => {
+    loadExercises();
   }, [user]);
 
-  const handleComplete = async (patientExerciseId: string) => {
-    try {
-        // Mock completion data
-        const completionData = {
-            completed_date: new Date().toISOString().split('T')[0],
-            sets_completed: 3,
-            repetitions_completed: 10,
-            duration_completed_seconds: 300,
-            pain_level: 3,
-            difficulty_rating: 4,
-        };
-        await completePatientExercise(patientExerciseId, completionData);
-        // Refresh exercises
-        if (user?.role_id) {
-            getPatientExercises(user.role_id)
-                .then((response) => setExercises(response))
-                .catch((err) => console.error('Error fetching exercises:', err));
-        }
-    } catch (error) {
-        console.error('Error completing exercise:', error);
+  useEffect(() => {
+    if (location.state && location.state.refresh) {
+      loadExercises();
+      window.history.replaceState({}, document.title);
     }
-  }
+  }, [location.state]);
+
+  // רענון כאשר הדף חוזר לפוקוס
+  useEffect(() => {
+    const onFocus = () => loadExercises();
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, []);
+
+  const handleComplete = async (patientExerciseId: string) => {
+    setLoadingCompleteId(patientExerciseId);
+    try {
+      // Mock completion data
+      const completionData = {
+        completed_date: new Date().toISOString().split('T')[0],
+        sets_completed: 3,
+        repetitions_completed: 10,
+        duration_completed_seconds: 300,
+        pain_level: 3,
+        difficulty_rating: 4,
+      };
+      await completePatientExercise(patientExerciseId, completionData);
+      // עדכון סטטוס ל'הושלם' גם ב-Frontend
+      setExercises((prev) => prev.map(ex =>
+        ex.id === patientExerciseId ? { ...ex, status: 'completed' } : ex
+      ));
+      //loadExercises(); // לא חובה מידית
+    } catch (error) {
+      console.error('Error completing exercise:', error);
+    } finally {
+      setLoadingCompleteId(null);
+    }
+  };
 
   const filteredExercises =
     filter === 'all'
@@ -74,7 +98,7 @@ const PatientExercises: React.FC = () => {
       </div>
 
       <div className={styles.exercisesList}>
-        {filteredExercises.map(pe => (
+        {filteredExercises.map((pe) => (
           <div key={pe.id} className={styles.exerciseCard}>
             <div className={styles.exerciseInfo}>
               <div className={styles.exerciseHeader}>
@@ -83,6 +107,17 @@ const PatientExercises: React.FC = () => {
                   {pe.status === 'completed' ? 'הושלם' : 'ממתין'}
                 </span>
               </div>
+              {pe.status !== 'completed' && (
+                <div className={styles.actions}>
+                  <button
+                    onClick={() => navigate(`/ExerciseStart?id=${pe.id}&type=${pe.exercise?.name}`)}
+                    className={styles.startButton}
+                  >
+                    התחל תרגיל
+                  </button>
+                  
+                </div>
+              )}
               <p>{pe.exercise?.description}</p>
               <div className={styles.exerciseDetails}>
                 <span className={styles.duration}>{pe.duration_seconds} שניות</span>
@@ -93,16 +128,6 @@ const PatientExercises: React.FC = () => {
                 <p className={styles.instructions}>{pe.exercise.instructions}</p>
               )}
             </div>
-            <div className={styles.actions}>
-              {pe.status !== 'completed' && (
-                <button
-                  onClick={() => handleComplete(pe.id)}
-                  className={styles.startButton}
-                >
-                  סמן כהושלם
-                </button>
-              )}
-            </div>
           </div>
         ))}
       </div>
@@ -110,4 +135,5 @@ const PatientExercises: React.FC = () => {
   );
 };
 
-export default PatientExercises; 
+export default PatientExercises;
+

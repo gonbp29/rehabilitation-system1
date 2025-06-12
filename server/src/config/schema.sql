@@ -1,4 +1,4 @@
--- Drop tables if they exist
+-- Drop tables (use lowercase matching the create)
 DROP TABLE IF EXISTS exercise_sessions;
 DROP TABLE IF EXISTS appointments;
 DROP TABLE IF EXISTS rehab_goals;
@@ -26,11 +26,11 @@ CREATE TABLE users (
 -- Create therapists table
 CREATE TABLE therapists (
   id VARCHAR(36) PRIMARY KEY,
-  userId VARCHAR(36) NOT NULL,
+  userId VARCHAR(36) NOT NULL UNIQUE,
   specialization VARCHAR(100),
   createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
+  CONSTRAINT fk_therapists_user FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- Create patients table
@@ -38,12 +38,12 @@ CREATE TABLE patients (
   id VARCHAR(36) PRIMARY KEY,
   userId VARCHAR(36) NOT NULL,
   therapistId VARCHAR(36),
-  condition TEXT,
+  patient_condition TEXT,
   status ENUM('active', 'inactive') DEFAULT 'active',
   createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
-  FOREIGN KEY (therapistId) REFERENCES therapists(id) ON DELETE SET NULL
+  CONSTRAINT fk_patients_user FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
+  CONSTRAINT fk_patients_therapist FOREIGN KEY (therapistId) REFERENCES therapists(id) ON DELETE SET NULL
 );
 
 -- Create equipment table

@@ -8,7 +8,7 @@ import {
 
 const API_URL = process.env.NODE_ENV === 'production'
   ? 'https://rehabilitation-system-server.onrender.com/api'
-  : 'http://localhost:5000/api';
+  : 'http://localhost:8080/api';
 
 const api = axios.create({
   baseURL: API_URL,
@@ -39,6 +39,7 @@ export const getTherapistAppointmentsToday = (id: string): Promise<Appointment[]
 
 // Patients
 export const getPatient = (id: string): Promise<Patient> => api.get(`/patients/${id}`).then(res => res.data);
+export const getPatientByEmail = (email: string): Promise<Patient> => api.get(`/patients/by-email/${email}`).then(res => res.data);
 export const updatePatient = (id: string, data: Partial<Patient>): Promise<Patient> => api.put(`/patients/${id}`, data).then(res => res.data);
 export const getPatientDashboard = (id: string) => api.get(`/patients/${id}/dashboard`).then(res => res.data);
 export const getPatientExercises = (id: string): Promise<PatientExercise[]> => api.get(`/patients/${id}/exercises`).then(res => res.data);
@@ -49,6 +50,9 @@ export const getPatientAppointments = (id: string): Promise<Appointment[]> => ap
 export const getPatientProgress = (id: string) => api.get(`/patients/${id}/progress`);
 export const unassignPatient = (id: string): Promise<Patient> => api.put(`/patients/${id}`, { therapist_id: null });
 export const deletePatient = (id: string): Promise<void> => api.delete(`/patients/${id}`);
+export const createPatientRehabPlan = (patientId: string, data: any) =>
+  api.post(`/patients/${patientId}/rehab-plan`, data).then(res => res.data);
+export const getPatientExercise = (id: string): Promise<PatientExercise> => api.get(`/patient-exercises/${id}`).then(res => res.data);
 
 
 // Exercises (Library)
@@ -57,6 +61,21 @@ export const getExercise = (id: string): Promise<Exercise> => api.get(`/exercise
 export const createExercise = (data: Partial<Exercise>): Promise<Exercise> => api.post('/exercises', data).then(res => res.data);
 export const updateExercise = (id: string, data: Partial<Exercise>): Promise<Exercise> => api.put(`/exercises/${id}`, data).then(res => res.data);
 export const deleteExercise = (id: string): Promise<void> => api.delete(`/exercises/${id}`);
+
+
+// Exercise Video
+export const updateExerciseVideo = (data: { exerciseId: string; video?: FormData; youtubeLink?: string }): Promise<Exercise> => {
+  if (data.video) {
+    return api.post(`/exercises/${data.exerciseId}/video`, data.video, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    }).then(res => res.data);
+  } else if (data.youtubeLink) {
+    return api.put(`/exercises/${data.exerciseId}/video`, { youtube_link: data.youtubeLink }).then(res => res.data);
+  }
+  throw new Error('Either video or youtubeLink must be provided');
+};
 
 
 // Patient Exercises

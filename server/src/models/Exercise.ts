@@ -11,6 +11,7 @@ class Exercise extends Model {
   public default_sets!: number;
   public default_repetitions!: number;
   public default_duration_seconds!: number;
+  public type!: string;
   public readonly created_at!: Date;
   public readonly updated_at!: Date;
 }
@@ -52,6 +53,10 @@ Exercise.init(
     },
     default_duration_seconds: {
       type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    type: {
+      type: DataTypes.STRING(100),
       allowNull: false,
     },
   },

@@ -6,12 +6,12 @@ dotenv.config();
 
 export const sequelize = new Sequelize({
   dialect: 'mysql',
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '3306'),
-  username: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'rehabilitation_system',
-  logging: process.env.NODE_ENV === 'development' ? console.log : false,
+  host: 'localhost',
+  port: 3306,
+  username: 'root',
+  password: 'Aa123456!',
+  database: 'rehabilitation_system',
+  logging: true,
   define: {
     charset: 'utf8mb4',
     collate: 'utf8mb4_unicode_ci',

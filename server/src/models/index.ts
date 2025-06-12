@@ -8,6 +8,8 @@ import Exercise from './Exercise';
 import PatientExercise from './PatientExercise';
 import ExerciseCompletion from './ExerciseCompletion';
 import Appointment from './Appointment';
+import RehabPlan from './RehabPlan';
+import RehabPlanExercise from './RehabPlanExercise';
 
 // Associations are defined in the model files.
 // This file is for exporting the models and the sequelize instance.
@@ -21,4 +23,6 @@ export {
   PatientExercise,
   ExerciseCompletion,
   Appointment,
+  RehabPlan,
+  RehabPlanExercise,
 }; 

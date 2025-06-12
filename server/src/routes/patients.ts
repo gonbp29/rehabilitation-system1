@@ -1,7 +1,16 @@
 import express from 'express';
-import { Patient, User, Therapist, PatientExercise, Exercise, ExerciseCompletion, Appointment } from '../models';
+import { Patient, User, Therapist, PatientExercise, Exercise, ExerciseCompletion, Appointment, RehabPlan, RehabPlanExercise } from '../models';
 import { authenticateToken } from '../middleware/auth';
 import { Op } from 'sequelize';
+import { Request } from 'express';
+
+interface AuthRequest extends Request {
+    user?: {
+        id: string;
+        role: string;
+        role_id: string;
+    };
+}
 
 const router = express.Router();
 
@@ -222,6 +231,123 @@ router.get('/:id/progress', authenticateToken, async (req, res) => {
     } catch (error) {
         console.error('Error fetching patient progress:', error);
         res.status(500).json({ error: 'Failed to fetch patient progress' });
+    }
+});
+
+// Create a rehab plan for a patient
+router.post('/:id/rehab-plan', authenticateToken, async (req, res) => {
+  try {
+    const patientId = req.params.id;
+    // @ts-ignore
+    const therapistId = req.user.role_id; // מתוך ה-JWT
+    const { general_goals, detailed_goals, required_equipment, notes, exercise_ids } = req.body;
+
+    // יצירת תוכנית שיקום בסיסית
+    const rehabPlan = await RehabPlan.create({
+      patientId,
+      therapistId,
+      title: general_goals || 'תוכנית שיקום',
+      description: detailed_goals || '',
+      startDate: new Date(),
+      endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // חודש קדימה
+      status: 'active',
+      progress: 0,
+    });
+
+    // יצירת קשרים לתרגילים
+    if (Array.isArray(exercise_ids)) {
+      const exercisesToAdd = exercise_ids.map((exerciseId: string) => ({
+        rehabPlanId: rehabPlan.id,
+        exerciseId,
+        sets: 3,
+        repetitions: 10,
+        durationSeconds: 60,
+      }));
+      await RehabPlanExercise.bulkCreate(exercisesToAdd);
+    }
+
+    res.status(201).json({ message: 'Rehab plan created', rehabPlan });
+  } catch (error) {
+    console.error('Error creating rehab plan:', error);
+    res.status(500).json({ error: 'Failed to create rehab plan' });
+  }
+});
+
+// Get patient by email
+router.get('/by-email/:email', authenticateToken, async (req: AuthRequest, res) => {
+    try {
+        console.log('Searching for user with email:', req.params.email);
+        
+        // First find the user in Users table
+        const user = await User.findOne({
+            where: { 
+                email: req.params.email
+            },
+            attributes: ['id', 'email', 'first_name', 'last_name', 'phone', 'role']
+        });
+
+        console.log('Found user:', user);
+
+        if (!user) {
+            return res.status(404).json({ error: 'משתמש לא נמצא במערכת' });
+        }
+
+        // If user exists but is not a patient, return error
+        if (user.role !== 'patient') {
+            return res.status(400).json({ error: 'המשתמש אינו מטופל במערכת' });
+        }
+
+        // Then find or create the patient record
+        let patient = await Patient.findOne({
+            where: { user_id: user.id },
+            include: [
+                {
+                    model: User,
+                    as: 'user',
+                    attributes: ['first_name', 'last_name', 'email', 'phone']
+                },
+                {
+                    model: Therapist,
+                    as: 'therapist',
+                    include: [{ model: User, as: 'user', attributes: ['first_name', 'last_name'] }]
+                }
+            ]
+        });
+
+        // If patient doesn't exist, create it
+        if (!patient) {
+            const therapistId = req.user?.role_id;
+            
+            patient = await Patient.create({
+                user_id: user.id,
+                therapist_id: therapistId,
+                date_of_birth: new Date(),
+                condition: 'General',
+                status: 'active'
+            });
+
+            // Fetch the complete patient record with associations
+            patient = await Patient.findOne({
+                where: { id: patient.id },
+                include: [
+                    {
+                        model: User,
+                        as: 'user',
+                        attributes: ['first_name', 'last_name', 'email', 'phone']
+                    },
+                    {
+                        model: Therapist,
+                        as: 'therapist',
+                        include: [{ model: User, as: 'user', attributes: ['first_name', 'last_name'] }]
+                    }
+                ]
+            });
+        }
+
+        res.json(patient);
+    } catch (error) {
+        console.error('Error fetching/creating patient by email:', error);
+        res.status(500).json({ error: 'שגיאה בחיפוש/יצירת מטופל' });
     }
 });
 

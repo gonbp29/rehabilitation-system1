@@ -16,7 +16,7 @@ import patientExercisesRoutes from './routes/patientExercises';
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 5000;
+const port = 8080;  // Fixed syntax for port number
 
 // Middleware
 app.use(cors({

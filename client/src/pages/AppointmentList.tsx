@@ -140,7 +140,7 @@ const AppointmentList: React.FC = () => {
                   </div>
                   <div>
                     <h3 className={styles.appointmentTitle}>
-                        {appointment.patient?.user?.first_name} {appointment.patient?.user?.last_name}
+                      {appointment.patient?.user?.first_name} {appointment.patient?.user?.last_name}
                     </h3>
                     <p className={styles.appointmentTime}>
                       {new Date(appointment.scheduled_date).toLocaleDateString('he-IL')} - {appointment.scheduled_time}
@@ -149,13 +149,44 @@ const AppointmentList: React.FC = () => {
                 </div>
               </Link>
               <div className={styles.cardActions}>
-                <div className={`${styles.status} ${styles[appointment.status]}`}>
-                  {appointment.status === 'scheduled' ? 'מתוכנן' :
-                    appointment.status === 'completed' ? 'הושלם' : 'בוטל'}
-                </div>
-                <button onClick={() => handleDelete(appointment.id)} className={styles.deleteButton}>
-                  <TrashIcon />
-                </button>
+                <div className={`${styles.status} ${styles[appointment.status]}`}>{appointment.status === 'scheduled' ? 'מתוכנן' : appointment.status === 'completed' ? 'הושלם' : 'בוטל'}</div>
+                {appointment.status === 'scheduled' && (
+                  <>
+                    <button
+                      className={styles.cancelButton}
+                      onClick={() => handleDelete(appointment.id)}
+                      disabled={deleteAppointmentMutation.isPending}
+                    >
+                      {deleteAppointmentMutation.isPending ? 'מבטל...' : 'בטל פגישה'}
+                    </button>
+                    <button
+                      className={styles.googleCalendarButton}
+                      onClick={() => {
+                        const [hours, minutes] = appointment.scheduled_time.split(':').map(Number);
+                        const startDate = new Date(appointment.scheduled_date);
+                        startDate.setHours(hours, minutes, 0, 0);
+                        const endDate = new Date(startDate.getTime() + (appointment.duration_minutes || 60) * 60000);
+                        const formatDateForGoogleCalendar = (date: Date) => {
+                          return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+                        };
+                        const startStr = formatDateForGoogleCalendar(startDate);
+                        const endStr = formatDateForGoogleCalendar(endDate);
+                        const url = new URL('https://calendar.google.com/calendar/render');
+                        url.searchParams.set('action', 'TEMPLATE');
+                        url.searchParams.set('text', `פגישה: ${appointment.type}`);
+                        const patientName = appointment.patient?.user
+                          ? `${appointment.patient.user.first_name} ${appointment.patient.user.last_name}`
+                          : '';
+                        url.searchParams.set('details', `פגישה עם ${patientName}`);
+                        url.searchParams.set('dates', `${startStr}/${endStr}`);
+                        window.open(url.toString(), '_blank');
+                      }}
+                      type="button"
+                    >
+                      הוסף ליומן Google
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           ))}

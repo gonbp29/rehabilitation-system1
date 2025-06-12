@@ -102,16 +102,11 @@ router.get('/:id/appointments/today', authenticateToken, async (req, res) => {
     try {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-        const nextWeek = new Date(today);
-        nextWeek.setDate(nextWeek.getDate() + 7);
 
         const appointments = await Appointment.findAll({
             where: {
                 therapist_id: req.params.id,
-                scheduled_date: {
-                    [Op.gte]: today,
-                    [Op.lt]: nextWeek,
-                },
+                scheduled_date: today,
             },
             include: [
                 {
@@ -124,8 +119,8 @@ router.get('/:id/appointments/today', authenticateToken, async (req, res) => {
         });
         res.json(appointments);
     } catch (error) {
-        console.error('Error fetching week\'s appointments:', error);
-        res.status(500).json({ error: 'Failed to fetch week\'s appointments' });
+        console.error('Error fetching today\'s appointments:', error);
+        res.status(500).json({ error: 'Failed to fetch today\'s appointments' });
     }
 });
 

@@ -138,8 +138,8 @@
 }
 
 .statusBadge.upcoming {
-  background: #e8f0fe;
-  color: #1976d2;
+  background: #fff3cd;
+  color: #856404;
 }
 
 .statusBadge.completed {

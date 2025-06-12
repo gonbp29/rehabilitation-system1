@@ -33,11 +33,16 @@ export interface Exercise {
   name: string;
   description: string;
   instructions: string;
-  category: string;
-  difficulty_level: 'beginner' | 'intermediate' | 'advanced';
+  video_url?: string;
+  youtube_link?: string;
   default_sets: number;
   default_repetitions: number;
   default_duration_seconds: number;
+  type?: string;
+  category?: string;
+  difficulty_level?: 'beginner' | 'intermediate' | 'advanced';
+  created_at: Date;
+  updated_at: Date;
 }
 
 export interface PatientExercise {
