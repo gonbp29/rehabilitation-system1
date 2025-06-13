@@ -17,7 +17,7 @@ const Register: React.FC = () => {
     specialization: '',
     date_of_birth: '',
     condition: '',
-    therapist_id: '' 
+    therapist_id: '01aa3765-1430-42f8-805d-42760e18b4cf' 
   });
   const [customError, setCustomError] = useState<string | null>(null);
 
