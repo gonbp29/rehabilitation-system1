@@ -6,7 +6,7 @@ import { RegisterData } from '../types';
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
-  const { register, error, loading } = useAuth();
+  const { register, loading } = useAuth();
   const [formData, setFormData] = useState<RegisterData>({
     email: '',
     password: '',

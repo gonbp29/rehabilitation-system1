@@ -23,9 +23,11 @@ app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
     ? [
         'https://rehabilitation-system-client.onrender.com',
-        'https://rehabilitation-system.onrender.com'
+        'https://rehabilitation-system.onrender.com',
+        'http://gon-react-app.s3-website.eu-north-1.amazonaws.com'  // ← add this
+
       ]
-    : ['http://localhost:5173', 'http://localhost:3000'],
+    : ['http://localhost:5173', 'http://localhost:3000', 'http://gon-react-app.s3-website.eu-north-1.amazonaws.com' ],
   credentials: true
 }));
 app.use(express.json());

@@ -91,7 +91,7 @@ const PatientProgress: React.FC = () => {
                       dataKey="value"
                       label
                     >
-                      {exercisePieData.map((entry, index) => (
+                      {exercisePieData.map((_, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
@@ -128,7 +128,7 @@ const PatientProgress: React.FC = () => {
                           dataKey="value"
                           label
                         >
-                          {goalsPieData.map((entry, index) => (
+                          {goalsPieData.map((_, index) => (
                             <Cell key={`cell-goal-${index}`} fill={COLORS[index % COLORS.length]} />
                           ))}
                         </Pie>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { UserGroupIcon, CalendarIcon, PlusIcon, ChartBarIcon } from '@heroicons/react/24/outline';
+import { UserGroupIcon, CalendarIcon } from '@heroicons/react/24/outline';
 import { getTherapistDashboardStats, getTherapistAppointmentsToday } from '../services/api';
 import { Appointment } from '../types';
 import styles from './TherapistDashboard.module.css';

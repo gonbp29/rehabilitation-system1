@@ -9,7 +9,7 @@ interface ExerciseBaseProps {
   isActive?: boolean;
 }
 
-export default function ExerciseBase({ onResults, onComplete, isActive = true }: ExerciseBaseProps) {
+export default function ExerciseBase({ onResults, isActive = true }: ExerciseBaseProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const cameraRef = useRef<any>(null);

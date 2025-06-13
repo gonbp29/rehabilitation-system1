@@ -6,9 +6,7 @@ import {
     LoginData, RegisterData 
 } from '../types';
 
-const API_URL = process.env.NODE_ENV === 'production'
-  ? 'https://rehabilitation-system-server.onrender.com/api'
-  : 'http://localhost:8080/api';
+const API_URL = 'http://51.20.1.100:8080/';
 
 const api = axios.create({
   baseURL: API_URL,

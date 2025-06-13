@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import styles from './PatientExercises.module.css';
-import { getPatientExercises, completePatientExercise } from '../services/api';
+import { getPatientExercises } from '../services/api';
 import { PatientExercise } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -11,7 +11,6 @@ const PatientExercises: React.FC = () => {
   const location = useLocation();
   const [exercises, setExercises] = useState<PatientExercise[]>([]);
   const [filter, setFilter] = useState<'all' | 'assigned' | 'completed'>('all');
-  const [loadingCompleteId, setLoadingCompleteId] = useState<string | null>(null);
 
   const loadExercises = () => {
     if (user?.role_id) {
@@ -38,31 +37,6 @@ const PatientExercises: React.FC = () => {
     window.addEventListener('focus', onFocus);
     return () => window.removeEventListener('focus', onFocus);
   }, []);
-
-  const handleComplete = async (patientExerciseId: string) => {
-    setLoadingCompleteId(patientExerciseId);
-    try {
-      // Mock completion data
-      const completionData = {
-        completed_date: new Date().toISOString().split('T')[0],
-        sets_completed: 3,
-        repetitions_completed: 10,
-        duration_completed_seconds: 300,
-        pain_level: 3,
-        difficulty_rating: 4,
-      };
-      await completePatientExercise(patientExerciseId, completionData);
-      // עדכון סטטוס ל'הושלם' גם ב-Frontend
-      setExercises((prev) => prev.map(ex =>
-        ex.id === patientExerciseId ? { ...ex, status: 'completed' } : ex
-      ));
-      //loadExercises(); // לא חובה מידית
-    } catch (error) {
-      console.error('Error completing exercise:', error);
-    } finally {
-      setLoadingCompleteId(null);
-    }
-  };
 
   const filteredExercises =
     filter === 'all'

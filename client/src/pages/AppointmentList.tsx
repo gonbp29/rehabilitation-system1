@@ -6,7 +6,7 @@ import { Appointment, Patient } from '../types';
 import styles from './AppointmentList.module.css';
 import { useAuth } from '../contexts/AuthContext';
 import ReactModal from 'react-modal';
-import { PlusIcon, TrashIcon } from '@heroicons/react/24/solid';
+import { PlusIcon } from '@heroicons/react/24/solid';
 
 const AppointmentList: React.FC = () => {
   const { user } = useAuth();
